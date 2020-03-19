@@ -1,0 +1,59 @@
+{
+  "name": "atlaskit-starter",
+  "version": "1.0.0",
+  "description": "Get your ADG3 on with this sample project using Atlaskit React components",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "surge": "bash surge_login.sh && surge --project ./build/ --domain atlaskit-starter.surge.sh"
+  },
+  "keywords": [],
+  "author": "Atlassian",
+  "license": "ISC",
+  "dependencies": {
+    "@atlaskit/avatar": "^17.1.8",
+    "@atlaskit/button": "^13.3.8",
+    "@atlaskit/code": "^11.1.3",
+    "@atlaskit/css-reset": "^5.0.10",
+    "@atlaskit/dropdown-menu": "^9.0.1",
+    "@atlaskit/flag": "^12.3.9",
+    "@atlaskit/form": "^7.1.3",
+    "@atlaskit/icon": "^20.0.2",
+    "@atlaskit/inline-edit": "^10.0.29",
+    "@atlaskit/modal-dialog": "^10.5.3",
+    "@atlaskit/navigation": "^36.0.2",
+    "@atlaskit/page": "^11.0.12",
+    "@atlaskit/select": "^11.0.7",
+    "@atlaskit/textfield": "^3.1.7",
+    "@atlaskit/theme": "^9.5.1",
+    "@atlaskit/tree": "^7.1.2",
+    "antd": "^4.0.3",
+    "prop-types": "^15.6.0",
+    "react": "^16.8.2",
+    "react-bootstrap-table-next": "^4.0.0",
+    "react-collapsible": "^2.7.0",
+    "react-dom": "^16.8.4",
+    "react-router": "^5.1.2",
+    "react-router-dom": "^5.1.2",
+    "styled-components": "^5.0.1"
+  },
+  "devDependencies": {
+    "react-scripts": "^3.4.0",
+    "surge": "^0.21.3"
+  },
+  "homepage": "/discovery_react/",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
