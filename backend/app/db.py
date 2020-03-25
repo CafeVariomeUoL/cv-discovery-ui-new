@@ -19,8 +19,8 @@ sources = Table(
     "sources",
     metadata,
     Column("source_id", Integer, primary_key=True),
-    Column("name", String(50), nullable=False),
-    Column("file_path", String(50), nullable=False),
+    Column("name", String(256), nullable=False),
+    Column("file_path", String(256), nullable=False),
     Column("date", DateTime(), server_default=func.now()),
     Column("status", String(20), nullable=False)
 )
@@ -31,7 +31,7 @@ eavs = Table(
     metadata,
     Column("id", Integer, primary_key=True),
     Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
-    Column("subject_id", String(20), nullable=False),
+    Column("subject_id", String(256), nullable=False),
     Column("data", JSONB, nullable=False)
 )
 
@@ -39,10 +39,11 @@ eavs = Table(
 eav_lookup = Table(
     "eav_lookup",
     metadata,
-    Column("id", String(128), primary_key=True),
+    Column("id", String(256), primary_key=True),
     Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
-    Column("label", String(32)),
+    Column("label", String(256)),
     Column("visible", Boolean, nullable=False),
+    Column("arbitrary_input", Boolean, nullable=False),
     Column("eav_attribute", JSON, nullable=False),
     Column("eav_values", JSONB, nullable=False)
 )

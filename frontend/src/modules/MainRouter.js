@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Router, Route } from 'react-router';
+import { Router, Route, Switch } from 'react-router';
 import { createBrowserHistory } from 'history';
 import App from './App';
 import HomePage from '../pages/HomePage';
@@ -44,10 +44,10 @@ export default class MainRouter extends Component {
   render() {
     return (
       <Router history={history}>
-        <Route component={this.appWithPersistentNav()}>
-          <Route path="/" component={HomePage} />
+        <Switch>
           <Route path="/settings" component={SettingsPage} />
-        </Route>
+          <Route path="/" component={HomePage} />
+        </Switch>
       </Router>
     );
   }

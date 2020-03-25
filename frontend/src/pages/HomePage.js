@@ -2,10 +2,10 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Button, { ButtonGroup } from '@atlaskit/button';
 import Spinner from '@atlaskit/spinner';
-import MainSection from '../components/MainSection';
 import ContentWrapper from '../components/ContentWrapper';
 import PageTitle from '../components/PageTitle';
 import QueryTree from '../components/QueryTree';
+import { mkLabel, getType } from '../components/utils'
 
 
 const buildQbs = (eav_data, hpo_data) => {
@@ -41,6 +41,39 @@ const buildQbs = (eav_data, hpo_data) => {
   return ret;
 }
 
+const buildQbsNew = (eav_data) => {
+  var ret = {
+    // 'age': {label: 'Age', queryId: 'age', type:'BetweenBuilder'},
+    'and': {label: 'All of', queryId: 'and', type:'EmptyBuilder', canHaveChildren: true},
+    'or': {label: 'Any of', queryId: 'or', type:'EmptyBuilder', canHaveChildren: true}
+  };
+  eav_data.map(e => {
+    if(e.visible){
+      var label;
+      const key = mkLabel(e.attribute);
+      const ty = getType(e.attribute);
+
+      if ('label' in e) {
+        console.log(e.label)
+        label = e.label
+        
+      } else {
+        label = key
+      }
+
+      ret[key] = {
+        label:label, 
+        queryId: e.attribute, 
+        type: 'PickerBuilder',
+        valueType: ty,
+        arbitraryInput: e.arbitrary_input,
+        queryAttribute: e.attribute,
+        options: 'values' in e ? e.values.map((val) => {return {label: val, value: val}}) : [] 
+      }
+    }
+  });
+  return ret;
+}
 
 export default class HomePage extends Component {
   constructor(props) {
@@ -83,10 +116,12 @@ export default class HomePage extends Component {
       .then(
         (result) => {
           console.log(result);
-          // this.setState({
-          //   isLoaded: true,
-          //   qbs: buildQbs(result.phen_data, result.hpo_data)
-          // });
+          
+
+          this.setState({
+            isLoaded: true,
+            qbs: buildQbsNew(result)
+          });
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
@@ -111,7 +146,11 @@ export default class HomePage extends Component {
       return (
         <ContentWrapper>
           <PageTitle>Discover - Query Builder</PageTitle>
-          <MainSection />        
+          <section style={{marginBottom: '20px'}}>
+            <p>
+              I am searching for records which include:
+            </p>
+          </section>    
           <QueryTree queryBuilders={this.state.qbs} debug/>
         </ContentWrapper>
       );

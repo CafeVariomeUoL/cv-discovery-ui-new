@@ -1,4 +1,4 @@
-from app.api import ping, upload
+from app.api import upload, query
 from app.db import database, engine, metadata
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -34,3 +34,4 @@ async def shutdown():
 
 # app.include_router(ping.router)
 app.include_router(upload.router)
+app.include_router(query.router)

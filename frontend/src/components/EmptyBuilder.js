@@ -4,7 +4,7 @@ export default class EmptyBuilder extends React.Component {
 	componentDidMount() {
 		this.props.setQuery({
 			operator:this.props.queryId,
-			type: 'group'
+			children:[]
 		});
 	}
 

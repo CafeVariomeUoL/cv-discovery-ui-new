@@ -27,6 +27,7 @@ import PickerBuilder from './PickerBuilder';
 import PhenotypeBuilder from './PhenotypeBuilder';
 import EmptyBuilder from './EmptyBuilder';
 import { jsonAPI } from './jsonAPI';
+import { mergeExists, mkLabel } from './utils';
 
 const PADDING_PER_LEVEL = 30;
 
@@ -71,6 +72,40 @@ const generateJsonAPIQuery = (q) => {
 }
 
 
+
+const generateFinalQuery = (q) => {
+  return mergeExists({operator:'and', children: q})
+}
+
+
+const insertAttr = (q) => {
+  switch (q.operator) {
+    case "and":
+    case "or":
+    case "exists":
+      var new_q = {...q}
+      new_q.children = new_q.children.map(insertAttr)
+      return new_q
+    default:
+      var new_q = {...q}
+      new_q.attribute = {'x' : new_q.attribute}
+      return new_q
+  }
+}
+
+const humanReadableQuery = (q) => {
+  switch (q.operator) {
+    case "and": return "(" + q.children.map(humanReadableQuery).join(" ∧ ") + ")"
+    case "or": return  "(" +  q.children.map(humanReadableQuery).join(" ∨ ") + ")"
+    case "exists": return "(∃ x ∈ " + mkLabel(q.from) + " . " + q.children.map((x) => {return humanReadableQuery(insertAttr(x))}).join("") + ")"
+    case "is": return "(" + mkLabel(q.attribute) + " = " + (q.value === "" ? '_' : q.value) + ")"
+    case "is not": return "(" + mkLabel(q.attribute) + " ≠ " + (q.value === "" ? '_' : q.value) + ")"
+    case "<": return "(" + mkLabel(q.attribute) + " < " + (q.value === "" ? '_' : q.value) + ")"
+    case "<=": return "(" + mkLabel(q.attribute) + " ≤ " + (q.value === "" ? '_' : q.value) + ")"
+    case ">": return "(" + mkLabel(q.attribute) + " > " + (q.value === "" ? '_' : q.value) + ")"
+    case ">=": return "(" + mkLabel(q.attribute) + " ≥ " + (q.value === "" ? '_' : q.value) + ")"
+  }
+}
 
 const columns = [{
   dataField: 'source',
@@ -145,29 +180,29 @@ export default class QueryTree extends Component<Props, State> {
     this.setState({
       showLoadingState: true
     });
-    const jsAPIQuery = generateJsonAPIQuery(this.state.query)
+    // const jsAPIQuery = generateJsonAPIQuery(this.state.query)
+    console.log(JSON.stringify({'query': { 'operator':'and', 'children': this.state.query}}));
     fetch(
-      "http://localhost/AjaxApi/query/6", {
+      "http://localhost:8002/query", {
         method:'POST',
-        // mode: 'no-cors',
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({'jsonAPI': jsAPIQuery, 'user_id':'1'})
+        body: JSON.stringify({'query': generateFinalQuery(this.state.query)})
       })
       .then(res => res.json())
       .then(
         (result) => {
-          var jsonRes = result.map(r => JSON.parse(r));
-          console.log(jsonRes);
-          var resultsNew = jsonRes.map((j,i) => { 
-            return {id:i, source: Object.keys(j)[0], counts: j[Object.keys(j)[0]].length}
-          });
+          // var jsonRes = result.map(r => JSON.parse(r));
+          console.log(result);
+          // var resultsNew = jsonRes.map((j,i) => { 
+          //   return {id:i, source: Object.keys(j)[0], counts: j[Object.keys(j)[0]].length}
+          // });
           this.setState({
-            results: resultsNew,
+            results: [{id:0, source:'', counts: result.count}],
             showLoadingState: false
           });
         },
@@ -192,7 +227,6 @@ export default class QueryTree extends Component<Props, State> {
       >
         <div style={{
           backgroundColor:'white', 
-          // borderColor:'#4797FF', 
           borderColor: 'rgb(222, 235, 255)',
           borderRadius: '3px',
           borderWidth: '2px',
@@ -292,21 +326,13 @@ export default class QueryTree extends Component<Props, State> {
   };
 
   handleChange = selectedOption => {
-    // this.setState(
-      // { selectedOption },
-      // () => {
         const { counter, tree } = this.state;
         const newTree = this.addItemToRoot(tree, counter, selectedOption.value);
 
-        // this.storeQuery(counter)(null);
         this.setState({
           counter: counter+1,
           tree: newTree,
         });
-
-        // console.log(this.state.tree);
-      // }
-    // );
   };
 
   render() {
@@ -336,15 +362,16 @@ export default class QueryTree extends Component<Props, State> {
           <BootstrapTable keyField='id' data={ this.state.results } columns={ columns } />
             {this.props.debug &&
             <div>
-              <h4 style={{paddingTop:'10px', paddingBottom:'10px'}}>Internal query:</h4>
+              <h4 style={{paddingTop:'30px', paddingBottom:'10px'}}>Human readable Query:</h4>
               <AkCodeBlock 
-                language="javascript" 
-                text={JSON.stringify(this.state.query, null, 2)} 
+                language="text" 
+                text={humanReadableQuery(generateFinalQuery(this.state.query), null, 2)} 
                 showLineNumbers={false}/>
-              <h4 style={{paddingBottom:'10px'}}>jsonAPI query:</h4>
+
+              <h4 style={{paddingBottom:'10px'}}>API query:</h4>
               <AkCodeBlock 
-                language="javascript" 
-                text={JSON.stringify(generateJsonAPIQuery(this.state.query), null, 2)} 
+                language="json" 
+                text={JSON.stringify(generateFinalQuery(this.state.query), null, 2)} 
                 showLineNumbers={false}/>
             </div>}
         </div>
