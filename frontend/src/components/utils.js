@@ -1,15 +1,4 @@
-// export const mkLabel = (o) => {
-//   switch(typeof o){
-//     case "object": 
-//       if(Array.isArray(o)){
-//         return "/" + mkLabel(o[0])
-//       } else {
-//         return Object.keys(o)[0] + "/" + mkLabel(o[Object.keys(o)[0]])
-//       }
-//     default:
-//       return ""
-//   }
-// }
+
 
 export const mkLabel = (o) => {
   switch(typeof o){
@@ -61,25 +50,30 @@ export const mergeExists = (o) => {
   console.log("got:", o)
   switch(o.operator){
     case "exists": 
-      if('children' in o) o.children = o.children.map(mergeExists)
-      return o
+      var o_new = {...o}
+      if('children' in o) o_new.children = o_new.children.map(mergeExists)
+      return o_new
     case "and":
-      if('children' in o) o.children = mergeExistsAux("and", o.children.map(mergeExists))
-      return o
+      var o_new = {...o}
+      if('children' in o) o_new.children = mergeExistsInAnd(o_new.children.map(mergeExists))
+      if (o_new.children.length === 1) return o_new.children[0];
+      return o_new
     case "or":
-      if('children' in o) o.children = mergeExistsAux("or", o.children.map(mergeExists))
-      return o
+      var o_new = {...o}
+      if('children' in o) o_new.children = o_new.children.map(mergeExists)
+      if (o_new.children.length === 1) return o_new.children[0];
+      return o_new
     default:
       return o
   }
 }
 
 
-export const mergeExistsAux = (op, lst) => {
+export const mergeExistsInAnd = (lst) => {
 
   const merged_exists = {
     operator: "exists",
-    children: [{operator:op, children: []}]
+    children: [{operator:"and", children: []}]
   }
 
   const new_lst = []
@@ -107,7 +101,7 @@ export const mergeExistsAux = (op, lst) => {
     }
   }
 
-  const rest = mergeExistsAux(op, new_lst)
+  const rest = mergeExistsInAnd(new_lst)
 
   if(merged_exists.children[0].children.length == 1) 
     merged_exists.children = merged_exists.children[0].children

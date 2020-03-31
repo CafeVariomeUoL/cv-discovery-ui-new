@@ -10,6 +10,23 @@ class AttributeMeta(BaseModel):
     visible: Optional[bool]
     arbitrary_input: Optional[bool]
 
+class AttributeValues(BaseModel):
+    attribute: dict
+    string: Optional[str]
+    limit: Optional[int]
+
+
+class DiscoverySettings(BaseModel):
+    id_:str
+    data: dict
+
+    class Config:
+        fields = {
+        'id_': 'id'
+        }
+
+    
+
 class BoolOp(str, Enum):
     andOp = 'and'
     orOp = 'or'
@@ -37,9 +54,12 @@ class BaseQuery(BaseModel):
     value: str
 
 
+class IsQuery(BaseModel):
+    attribute: Union[dict, str]
 
-class QueryGroup(BaseModel):
-    children: List[Union[BaseQuery, 'QueryGroup']]
+
+class GroupQuery(BaseModel):
+    children: List[Union[BaseQuery, 'GroupQuery']]
     operator: Union[BoolOp, Quantifier]
     from_: Optional[dict]
 
@@ -48,8 +68,8 @@ class QueryGroup(BaseModel):
         'from_': 'from'
         }
 
-QueryGroup.update_forward_refs()
+GroupQuery.update_forward_refs()
 
 
 class Query(BaseModel):
-    query: QueryGroup
+    query: Union[BaseQuery, GroupQuery]

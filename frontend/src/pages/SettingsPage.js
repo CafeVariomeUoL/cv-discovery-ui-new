@@ -1,275 +1,86 @@
-import React, { Component, useContext, useState, useEffect, useRef } from 'react';
+import React, { Component } from 'react';
 import ContentWrapper from '../components/ContentWrapper';
 import PageTitle from '../components/PageTitle';
-import { mkLabel, getType } from '../components/utils'
 
-import { Table, Input, Button, Popconfirm, Form } from 'antd';
-import ToggleStateless from '@atlaskit/toggle';
-import './SettingsPage.css'
+import styled from 'styled-components';
+import Tree, {
+  mutateTree,
+  moveItemOnTree,
+  addItemToTree,
+  RenderItemParams,
+  TreeItem,
+  TreeData,
+  ItemId,
+  TreeSourcePosition,
+  TreeDestinationPosition,
+} from '@atlaskit/tree';
+import Button, { ButtonGroup } from '@atlaskit/button';
+import Page, { Grid, GridColumn } from '@atlaskit/page';
+import Select from '@atlaskit/select';
+import CrossIcon from '@atlaskit/icon/glyph/cross';
+import { AkCode, AkCodeBlock } from '@atlaskit/code';
+import BootstrapTable from 'react-bootstrap-table-next';
+import Collapsible from 'react-collapsible';
 
 
-const EditableContext = React.createContext();
+// import PatientCharacteristics from './PatientCharacteristics';
+// import VariantBuilder from './VariantBuilder';
+// import BetweenBuilder from './BetweenBuilder';
+// import PhenotypeBuilder from './PhenotypeBuilder';
+// import EmptyBuilderSettings from '../components/settings/EmptyBuilderSettings';
+// import PickerBuilderSettings from '../components/settings/PickerBuilderSettings';
 
-interface Item {
-  key: string;
-  name: string;
-  age: string;
-  address: string;
-}
+// import { jsonAPI } from './jsonAPI';
+// import { mergeExists, mkLabel } from './utils';
+import { typeMap } from '../components/Types'
 
-interface EditableRowProps {
-  index: number;
-}
 
-const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
-  const [form] = Form.useForm();
-  return (
-    <Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    </Form>
-  );
-};
+const PADDING_PER_LEVEL = 30;
 
-interface EditableCellProps {
-  title: React.ReactNode;
-  editable: boolean;
-  children: React.ReactNode;
-  dataIndex: string;
-  record: Item;
-  handleSave: (record: Item) => void;
-}
 
-const EditableCell: React.FC<EditableCellProps> = ({
-  title,
-  editable,
-  children,
-  dataIndex,
-  record,
-  handleSave,
-  ...restProps
-}) => {
-  const [editing, setEditing] = useState(false);
-  const inputRef = useRef();
-  const form = useContext(EditableContext);
 
-  useEffect(() => {
-    if (editing) {
-      inputRef.current.focus();
+
+
+const collectQueries = (t, e, q) => 
+  t.items[e].children.map((i) => {
+    if(t.items[i].children.length > 0){
+      const childrenQs = collectQueries(t, i, q);
+      const q_new = {...q[i]};
+      q_new.children = childrenQs;
+      return q_new;
     }
-  }, [editing]);
-
-  const toggleEdit = () => {
-    setEditing(!editing);
-    form.setFieldsValue({ [dataIndex]: record[dataIndex] });
-  };
-
-  const save = async e => {
-    try {
-      const values = await form.validateFields();
-
-      toggleEdit();
-      handleSave({ ...record, ...values });
-    } catch (errInfo) {
-      console.log('Save failed:', errInfo);
-    }
-  };
-
-  let childNode = children;
-
-  if (editable) {
-    childNode = editing ? (
-      <Form.Item
-        style={{ margin: 0 }}
-        name={dataIndex}
-      >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-      </Form.Item>
-    ) : (
-      <div className="editable-cell-value-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
-        {children}
-      </div>
-    );
-  }
-
-  return <td {...restProps}>{childNode}</td>;
-};
-
-class EditableTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.columns = [
-		  {
-		    title: 'Key',
-		    dataIndex: 'keyName',
-		    width: '40%',
-		    key: 'keyName',
-		    defaultSortOrder: 'ascend',
-    		sorter: (a, b) => a.keyName.localeCompare(b.keyName),
-		  },
-		  {
-		    title: 'Type',
-		    dataIndex: 'type',
-		    key: 'type',
-		  },
-		  {
-		    title: 'Label',
-		    dataIndex: 'label',
-		    width: '45%',
-		    editable: true,
-		    key: 'label',
-		  },
-		  {
-		    title: 'Arbitrary Input',
-		    dataIndex: 'arbitrary_input',
-		    key: 'arbitrary_input',
-		    render: (text, record) => 
-		    	record.arbitrary_input ?
-		    		<ToggleStateless isDefaultChecked onChange={this.toggleBool('arbitrary_input', record)}/> :
-		    		<ToggleStateless onChange={this.toggleBool('arbitrary_input', record)}/>
-		  },
-		  {
-		    title: 'Visible',
-		    dataIndex: 'visible',
-		    key: 'visible',
-		    render: (text, record) => 
-		    	record.visible ?
-		    		<ToggleStateless isDefaultChecked onChange={this.toggleBool('visible', record)}/> :
-		    		<ToggleStateless onChange={this.toggleBool('visible', record)}/>
-		  },
-		];
+    return q[i]
+  })
 
 
-    this.state = {
-      dataSource: this.props.dataSource,
-      count: 2,
-    };
-  }
+const queryBuilders = Object.keys(typeMap).filter(e => 'settings_type' in typeMap[e]).map(e => {return {value:e, label: typeMap[e].label}})
 
+export default class SettingsPage extends Component<Props, State> {
 
-  componentDidUpdate(prevProps) {
-	  if (prevProps.dataSource !== this.props.dataSource) {
-	    this.setState({ dataSource: this.props.dataSource });
-	  }
-	}
-  
-  toggleBool = (property,row) => async () => {
-    const newData = [...this.state.dataSource];
-  	const index = newData.findIndex(item => row.key === item.key);
-    const item = newData[index];
-    item[property] = !item[property];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    var meta = {'attribute': row.attribute};
-    meta[property]=item[property];
-    console.log(meta)
-		fetch(
-      "http://localhost:8002/eavs/setAttributeMeta", {
-        method:'POST',
-        // mode: 'no-cors',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
+  state = {
+    counter:0,
+    tree: {
+      rootId: 'root',
+      items: {
+        'root': {
+          id: 'root',
+          children: [],
+          hasChildren: true,
+          isExpanded: true,
+          isChildrenLoading: false,
+          data: {
+            canHaveChildren: true
+          }
         },
-        body: JSON.stringify(meta)
-      })
-      .then(res => res.json())
-      .then(
-        (result) => {
-        	if(result.status === "success"){
-        		this.setState({ dataSource: newData });
-        	}
-        })
-
-    
-  }
-
-  handleSave = row => {
-    const newData = [...this.state.dataSource];
-    const index = newData.findIndex(item => row.key === item.key);
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });    
-    fetch(
-      "http://localhost:8002/eavs/setAttributeMeta", {
-        method:'POST',
-        // mode: 'no-cors',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({'attribute': row.attribute, 'label':row.label})
-      })
-      .then(res => res.json())
-      .then(
-        (result) => {
-        	if(result.status === "success"){
-        		this.setState({ dataSource: newData });
-        	}
-        })
-  };
-
-  render() {
-    const { dataSource } = this.state;
-    const components = {
-      body: {
-        row: EditableRow,
-        cell: EditableCell,
       },
-    };
-    const columns = this.columns.map(col => {
-      if (!col.editable) {
-        return col;
-      }
-      return {
-        ...col,
-        onCell: record => ({
-          record,
-          editable: col.editable,
-          dataIndex: col.dataIndex,
-          title: col.title,
-          handleSave: this.handleSave,
-        }),
-      };
-    });
-    return (
-      <div>
-        <Table
-        	className={"settingsTable"}
-          components={components}
-          rowClassName={() => 'editable-row'}
-          bordered
-          dataSource={dataSource}
-          columns={columns}
-          pagination={false}
-        />
-      </div>
-    );
+    }
   }
-}
 
 
-
-export default class HomePage extends Component {
-	constructor(props) {
-    super(props);
-    this.state = {
-      hpo_attributes: []
-    };
-  }
 
   componentDidMount() {
     fetch(
-      "http://localhost:8002/eavs/getAttributes", {
+      "http://localhost:8002/discovery/loadSettings?id="+this.props.match.params.id, {
         headers: {
           "Access-Control-Allow-Origin": "*",
           'Content-Type': 'application/json',
@@ -280,29 +91,28 @@ export default class HomePage extends Component {
       .then(res => res.json())
       .then(
         (result) => {
-          // console.log(result);
-          
-          var counter = 0;
-          this.setState({
-            hpo_attributes: result.map(e => {
-            	return {
-            		key: counter++,
-            		keyName: mkLabel(e.attribute),
-            		type: getType(e.attribute),
-            		label: 'label' in e ? e.label : '',
-            		visible: e.visible,
-            		arbitrary_input: e.arbitrary_input,
-            		attribute: e.attribute,
-            	}
-            })
-          });
+          // console.log("Tree: ");
+          if(result){
+            const newTree = JSON.parse(result)
+
+            const items = Object.keys(newTree.items);
+            var maxVal = 0, v;
+            for (var i = 0; i < items.length; i++) {
+              v = parseInt(items[i]);
+              if(v > maxVal) maxVal = v;
+            }
+
+            this.setState({
+              tree: newTree,
+              counter: maxVal+1
+            });
+          }
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
         // exceptions from actual bugs in components.
         (error) => {
           this.setState({
-            isLoaded: false,
             error: error
           });
         }
@@ -310,15 +120,199 @@ export default class HomePage extends Component {
   }
 
 
+
+  storeData = (id) => {
+    return (data) => {
+      var newTree = {...this.state.tree}
+      newTree.items[id].data = data
+      
+      this.setState({
+        tree: newTree,
+      });
+    }
+  }
+
+
+  renderBuilderFromTreeItem = (item: TreeItem) => {
+    const TypeTag = typeMap[item.type].settings_type
+    return <TypeTag setData={this.storeData(item.id)} data={item.data}/>
+  }
+
+
+  renderItem = ({ item, onExpand, onCollapse, provided }: RenderItemParams) => {
+
+    return (
+      <div
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        
+      >
+        <div style={{
+          backgroundColor:'white', 
+          borderColor: 'rgb(222, 235, 255)',
+          borderRadius: '3px',
+          borderWidth: '2px',
+          borderStyle: 'solid',
+          padding: '10px',
+          marginTop: '5px',
+        }}>
+        <Grid spacing="compact">
+          <GridColumn medium={1}>
+            <Button appearance={'subtle'} spacing="none" onClick={() => this.onDelete(item.id)}>
+              <CrossIcon/>
+            </Button>
+          </GridColumn>
+          <GridColumn medium={11}>
+            {this.renderBuilderFromTreeItem(item)}
+          </GridColumn>
+        </Grid>
+        </div>
+      </div>
+    );
+  };
+
+  
+  createTreeItem = (id: string, ty: string) => {
+    return {
+      id: id,
+      children: [],
+      hasChildren: false,
+      isExpanded: false,
+      isChildrenLoading: false,
+      type: ty,
+    };
+  };
+
+  addItemToRoot = (tree: TreeData, id: string, ty: string) => {
+    // const destinationParent = tree.items[position.parentId];
+    const newItems = {...tree.items};
+    newItems[`${id}`] = this.createTreeItem(id, ty);
+    newItems['root'].children.push(`${id}`);
+    return {
+      rootId:tree.rootId, 
+      items: newItems
+    } 
+  }
+
+  deleteItem = (tree: TreeData, id: string) => {
+    const newItems = {...tree.items};
+    delete newItems[`${id}`];
+
+    for (var i of Object.keys(newItems)) {
+      if (newItems[i].children.includes(`${id}`)) {
+        newItems[i].children.splice(newItems[i].children.indexOf(`${id}`), 1);
+      }
+    }
+
+    return {
+      rootId:tree.rootId, 
+      items: newItems
+    } 
+  }
+
+
+  onDelete = (id: string) => {
+    const { counter, tree, queries } = this.state;
+    const newTree = this.deleteItem(tree, id);
+    const newQueries = {...queries}
+    delete newQueries[id];
+
+    this.setState({
+      tree: newTree,
+      queries: newQueries,
+      query: collectQueries(newTree, 'root', newQueries)
+    });
+  }
+
+  
+
+
+  onDragEnd = (
+    source: TreeSourcePosition,
+    destination?: TreeDestinationPosition,
+  ) => {
+    const { tree } = this.state;
+
+    if (!destination) {
+      return;
+    }
+
+    if(!tree.items[destination.parentId].data.canHaveChildren){
+      return;
+    }
+    const newTree = moveItemOnTree(tree, source, destination);
+    this.setState({
+      tree: mutateTree(newTree, destination.parentId, { isExpanded: true }),
+      query: collectQueries(newTree, 'root', this.state.queries)
+    });
+  };
+
+  handleChange = selectedOption => {
+        const { counter, tree } = this.state;
+        const newTree = this.addItemToRoot(tree, counter, selectedOption.value);
+
+        this.setState({
+          counter: counter+1,
+          tree: newTree,
+        });
+  };
+
+  saveTree = () => {
+    fetch(
+      "http://localhost:8002/discovery/saveSettings", {
+        method:'POST',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({id: this.props.match.params.id, data:this.state.tree})
+      })
+      .then(res => res.json())
+      .then(
+        (result) => {
+          console.log(result);
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        (error) => {
+          console.log(error)
+        })
+  }
+
   render() {
+    const { tree } = this.state;
+
     return (
       <ContentWrapper>
         <PageTitle>Settings</PageTitle>
-        <h2 style={{marginBottom: '20px'}}>PickerBuilder settings</h2>
-        <EditableTable
-		  		dataSource={this.state.hpo_attributes} 
-	      />
-      </ContentWrapper>
+        <h2 style={{marginBottom: '20px'}}>Discovery page {this.props.match.params.id} settings</h2>
+        <Tree
+          tree={tree}
+          renderItem={this.renderItem}
+          onDragEnd={this.onDragEnd}
+          offsetPerLevel={PADDING_PER_LEVEL}
+          isDragEnabled
+        />
+        <div style={{marginTop:'100px'}}>
+          <h4 style={{paddingBottom:'10px'}}>Add a query builder:</h4>
+          <Select
+            options={queryBuilders}
+            onChange={this.handleChange}
+            placeholder="Select a box to add" />
+        </div>
+        <div style={{marginTop:'20px'}}>
+        <Button appearance="primary" onClick={this.saveTree}>Save settings</Button>
+        </div>
+         <h4 style={{paddingTop:'30px', paddingBottom:'10px'}}>Tree:</h4>
+              <AkCodeBlock 
+                language="text" 
+                text={JSON.stringify(this.state.tree, null, 2)} 
+                showLineNumbers={false}/>
+      </ContentWrapper> 
     );
   }
 }

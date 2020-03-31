@@ -8,16 +8,52 @@ import { mkAttrQuery } from './utils';
 
 const opts = [
 	      { label: 'IS', value: 'is' },
+	      { label: 'IS LIKE', value: 'is like' },
 	      { label: 'IS NOT', value: 'is not' },
+	      { label: 'IS NOT LIKE', value: 'is not like' },
 	      { label: '=', value: 'is' },
 	      { label: '≠', value: 'is not' },
 	    ];
 
-export default class PickerBuilder extends React.Component {
+const opts_num = [
+	      { label: '<', value: '<' },
+	      { label: '>', value: '>' },
+	      { label: '<=', value: '<=' },
+	      { label: '>=', value: '>=' },
+	    ];
 
+export default class ValueBuilder extends React.Component {
+	operator_opts = this.props.valueType === "str" 
+								? opts : [...opts, ...opts_num];
+
+	currentdate = new Date().toUTCString();
+
+	inputComponent = () => {
+		if (this.props.arbitraryInput) {
+			if (this.props.valueType === "datetime"){
+				return <DatePicker
+					onChange={this.handleChange('value')}
+					defaultValue={this.current_date}
+					locale={"en-GB"}
+				/>
+			} else {
+				return <Textfield
+		      name="value-low"
+		      onChange={this.handleChange('value')} 
+		    />
+			}
+		} else {
+			return <Select
+	      className="single-select"
+	      classNamePrefix="react-select"
+	      options={this.state.options}
+	      onChange={this.handleChange('value')}
+	  	/>
+		}
+	}
 
 	state = {
-		op: opts[0].value,
+		op: this.operator_opts[0].value,
 		value: '',
 		options: [], 
 	}
@@ -27,6 +63,8 @@ export default class PickerBuilder extends React.Component {
 	}
 
 	componentDidMount() {
+		// this.props.setQuery(this.mkQuery(this.state));
+		// console.log(this.props)
 
 		fetch(
 	      "http://localhost:8002/discovery/getAttributeValues", {
@@ -52,16 +90,25 @@ export default class PickerBuilder extends React.Component {
 	          console.log(error)
 	        })
 
+	    console.log("setting query", this.mkQuery(this.state))
         this.props.setQuery(this.mkQuery(this.state));
 
 	}
 
 	handleChange = prop_name => e =>  {
 		const newState = {...this.state};
-		newState[prop_name] = e.value;
-		
-    	this.setState(newState);
-    	this.props.setQuery(this.mkQuery(newState));
+		if (prop_name === 'op' || !this.props.arbitraryInput){
+			newState[prop_name] = e.value;
+		}
+		else {
+			if(this.props.valueType === "datetime") {
+				newState[prop_name] = e;
+			} else {
+				newState[prop_name] = e.target.value;
+			}
+		}
+    this.setState(newState);
+    this.props.setQuery(this.mkQuery(newState));
 	}
 
 	
@@ -74,19 +121,14 @@ export default class PickerBuilder extends React.Component {
           <Select
             className="single-select"
           	classNamePrefix="react-select"
-            options={opts}
-            defaultValue={opts[0]}
+            options={this.operator_opts}
+            defaultValue={this.operator_opts[0]}
             onChange={this.handleChange('op')} 
             // value={opts[0]}
           />
 		    </GridColumn>
 		    <GridColumn>
-		      <Select
-		      className="single-select"
-		      classNamePrefix="react-select"
-		      options={this.state.options}
-		      onChange={this.handleChange('value')}
-		  	/>
+		      {	this.inputComponent() }
 		    </GridColumn>
 		  </Grid>
 		  </div>

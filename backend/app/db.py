@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import (Column,ForeignKey, DateTime, Integer, MetaData, String, Boolean, JSON, Table,
+from sqlalchemy import (Column,ForeignKey, DateTime, Integer, Text, MetaData, String, Boolean, JSON, Table,
                         create_engine)
 from sqlalchemy.sql import func
 
@@ -36,6 +36,19 @@ eavs = Table(
 )
 
 
+eavs2 = Table(
+    "eavs2",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
+    Column("subject_id", String(256), nullable=False),
+    Column("attribute", JSONB, nullable=False),
+    Column("path", Text, nullable=False),
+    Column("type", String(50), nullable=False),
+    Column("value", Text, nullable=False)
+)
+
+
 eav_lookup = Table(
     "eav_lookup",
     metadata,
@@ -46,6 +59,34 @@ eav_lookup = Table(
     Column("arbitrary_input", Boolean, nullable=False),
     Column("eav_attribute", JSON, nullable=False),
     Column("eav_values", JSONB, nullable=False)
+)
+
+
+eav_meta = Table(
+    "eav_meta",
+    metadata,
+    Column("id", String(256), primary_key=True),
+    Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
+    Column("label", String(256)),
+    Column("visible", Boolean, nullable=False),
+    Column("arbitrary_input", Boolean, nullable=False),
+    Column("eav_attribute", JSON, nullable=False)
+)
+
+eav_values = Table(
+    "eav_values",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("eav_id", String(256), ForeignKey(eav_meta.c.id)),
+    Column("value", String(256), nullable=False)
+)
+
+
+discovery_settings = Table(
+    "discovery_settings",
+    metadata,
+    Column("id", String(100), primary_key=True),
+    Column("data", JSON, nullable=False)
 )
 
 # databases query builder

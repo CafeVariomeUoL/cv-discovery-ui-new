@@ -3,6 +3,7 @@ import os, shutil, json
 from fastapi import APIRouter, File, UploadFile
 from app.db import eavs, database
 from app.api.models import *
+from app.utils.paths import map_
 from sqlalchemy import and_, or_, func, exists, select, column, Integer, Float
 from sqlalchemy.dialects import postgresql
 
@@ -29,6 +30,27 @@ def mkPathStm(stm, eav, getJSONobject = False):
         return False, res
     else:
         return True, stm
+
+
+
+def optimiseQuery(q: Union[BaseQuery, GroupQuery]):
+    if isinstance(q, BaseQuery) and q.operator == "is":
+        return IsQuery(attribute=map_(q.attribute, lambda x: q.value))
+
+    # rewrite an `∃ x ∈ S. x = a` into `_ @> S({[x:a]})` optimised query
+    if isinstance(q, GroupQuery) and q.operator == Quantifier.exists:
+        res = optimiseQuery(q.children[0])
+        if isinstance(res, IsQuery):
+            return IsQuery(attribute=map_(q.from_, lambda x: [res.attribute]))
+        else:
+            q_new = GroupQuery(children=[res], operator=Quantifier.exists)
+            q_new.from_ = q.from_
+            return q_new
+    if isinstance(q, GroupQuery):
+        q.children = list(map(optimiseQuery, q.children))
+        return q
+    return q
+
 
 
 def mkAttributeQuery(stm, eav, val, ty, op):
@@ -60,42 +82,54 @@ def mkAttributeQuery(stm, eav, val, ty, op):
             return cast_stm <= cast_val
 
 
-# 
-# def aggregateArrayQueries
 
 
 
+def basicOrGroupQuery(s):
+    def f(e : Union[BaseQuery, GroupQuery]):
+        if isinstance(e, IsQuery):
+            return [] , s.op('@>')(json.dumps(e.attribute))
+        if isinstance(e, BaseQuery):
+            r = mkAttributeQuery(s, e.attribute, e.value, get_type(e.attribute), e.operator)
+            return [] , r
+        if isinstance(e, GroupQuery):
+            return mkGroupQuery(s, e)
+    return f
 
-def mkGroupQuery(source, qg: QueryGroup):
-    def basicOrGroupQuery(s):
-        def f(e : Union[BaseQuery, QueryGroup]):
-            if isinstance(e, BaseQuery):
-                return mkAttributeQuery(s, e.attribute, e.value, get_type(e.attribute), e.operator)
-            if isinstance(e, QueryGroup):
-                return mkGroupQuery(s, e)
-        return f
 
+
+def mkGroupQuery(source, qg: GroupQuery):
     if (qg.operator == BoolOp.andOp):
-        subExprs = map(basicOrGroupQuery(source), qg.children)
-        return and_(*subExprs)
+        res = list(map(basicOrGroupQuery(source), qg.children))
+        subExprs = [e for _,e in res]
+        sources = [s for src,_ in res for s in src]
+        return sources, and_(*subExprs)
     elif (qg.operator == BoolOp.orOp):
-        subExprs = map(basicOrGroupQuery(source), qg.children)
-        return or_(*subExprs)
+        res = list(map(basicOrGroupQuery(source), qg.children))
+        subExprs = [e for _,e in res]
+        sources = [s for src,_ in res for s in src]
+        return sources, or_(*subExprs)
     elif (qg.operator == Quantifier.exists):
         _, arr = mkPathStm(source, qg.from_, True)
         tmp = func.jsonb_array_elements(arr).alias()
-        subExprs = map(basicOrGroupQuery(column(tmp.name)), qg.children)
-        return exists(select().select_from(tmp).where(*subExprs))
+        res_ls, subExpr = basicOrGroupQuery(column(tmp.name))(qg.children[0])
+        return ([tmp] + res_ls), subExpr
 
 
 @router.post("/query")
 async def query(payload: Query):
-    stmt = mkGroupQuery(eavs.c.data, payload.query)
-    print(payload.query)
-    print((eavs.select().where(stmt)).compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
-    
-    
+    # print("q: ", payload.query)
+    # print("q_opt: ", optimiseQuery(payload.query))
+    srcs, stmt = basicOrGroupQuery(eavs.c.data)(optimiseQuery(payload.query))
+    # print(payload.query)
+    srcs = [eavs] + srcs
 
-    query = eavs.select().where(stmt)
+    query = select([func.count()])
+    for s in srcs:
+        query = query.select_from(s)
+    
+    query = query.where(stmt)
+
+    print(query.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
     res = await database.fetch_all(query=query)
-    return {'count': len(res)}
+    return {'count': res[0]['count_1']}

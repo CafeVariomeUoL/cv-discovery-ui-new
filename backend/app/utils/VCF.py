@@ -117,7 +117,7 @@ def lines(filename):
     """Open an optionally gzipped VCF file and generate an OrderedDict for
     each line.
     """
-    fn_open = gzip.open if filename.endswith('.gz') else open
+    fn_open = (lambda x: gzip.open(x, 'rt')) if filename.endswith('.gz') else open
 
     with fn_open(filename) as fh:
         for line in fh:

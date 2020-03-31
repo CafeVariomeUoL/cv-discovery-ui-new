@@ -7,6 +7,7 @@ build/
 
 # logs
 npm-debug.log
+yarn-error.log
 
 # editor config
 .idea

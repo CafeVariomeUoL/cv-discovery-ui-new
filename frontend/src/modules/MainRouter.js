@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Router, Route, Switch } from 'react-router';
 import { createBrowserHistory } from 'history';
 import App from './App';
-import HomePage from '../pages/HomePage';
+import DiscoveryPage from '../pages/DiscoveryPage';
 import SettingsPage from '../pages/SettingsPage';
 
 
@@ -45,8 +45,8 @@ export default class MainRouter extends Component {
     return (
       <Router history={history}>
         <Switch>
-          <Route path="/settings" component={SettingsPage} />
-          <Route path="/" component={HomePage} />
+          <Route path="/settings/:id" component={SettingsPage} />
+          <Route path="/:id" component={DiscoveryPage} />
         </Switch>
       </Router>
     );
