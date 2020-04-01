@@ -78,7 +78,7 @@ export default class PickerBuilderSettings extends React.Component {
 	render() {
 		return (
 			<div>
-			<h3 style={{paddingBottom: '0.5em'}}>Dropdown attribute</h3>
+			<h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
 	  
 		  <Grid>
 		  <GridColumn medium={5}>
@@ -101,7 +101,9 @@ export default class PickerBuilderSettings extends React.Component {
 		  </GridColumn>
 		  <GridColumn medium={2}>
 		  	<h5 style={{paddingBottom: '0.5em'}}>Dynamic values:</h5>
+		  	<div style={{boxSizing: 'content-box'}}>
 		  	<ToggleStateless size="large" isDefaultChecked={this.state.data.load_vals_dynamically} onChange={this.handleChange('load_vals_dynamically')}/>
+		  	</div>
 		  </GridColumn>
 		  </Grid>
 		  </div>

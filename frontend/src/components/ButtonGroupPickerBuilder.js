@@ -1,23 +1,22 @@
 import React from 'react';
-import Select from '@atlaskit/select';
+import { Radio } from 'antd';
 import { Grid, GridColumn } from '@atlaskit/page';
-import { Table, Tag } from 'antd';
 import { mkAttrQuery } from './utils';
+import './ButtonGroup.css'
 
 
-const columns = [
-  {
-    title: 'Phenotype',
-    dataIndex: 'hpo',
-    key: 'hpo',
-  }
-];
 
-export default class PhenotypeBuilder extends React.Component {
+export default class ButtonGroupPickerBuilder extends React.Component {
+
+
 	state = {
-		selectedRowKeys: [], // Check here to configure the default column
-		hpo_data: [],
-	};
+		value: '',
+		options: [], 
+	}
+
+	mkQuery = state => {
+		return mkAttrQuery(this.props.attribute, (v)=>v, "is", state.value)
+	}
 
 	componentDidMount() {
 
@@ -36,7 +35,7 @@ export default class PhenotypeBuilder extends React.Component {
 	      .then(
 	        (result) => {
 	          console.log(result);
-	           if(result) this.setState({hpo_data: result.map((e) => {return {key:e, title:e}})});
+	           if(result) this.setState({options: result});
 	        },
 	        // Note: it's important to handle errors here
 	        // instead of a catch() block so that we don't swallow
@@ -49,33 +48,25 @@ export default class PhenotypeBuilder extends React.Component {
 
 	}
 
-
-	mkQuery = state => {
-		return {
-	      operator:"and",
-	      children: []
-	    }
+	handleChange = e =>  {
+		this.setState({value: e.target.value});
+        this.props.setQuery(this.mkQuery({value: e.target.value}));
+        console.log(this.state)
 	}
 
-	onSelectChange = selectedRowKeys => {
-	    const newState = {...this.state, selectedRowKeys: selectedRowKeys.sort()};
-	    this.setState(newState);
-	    this.props.setQuery(this.mkQuery(newState));
-	};
 	
 	render() {
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
-		  <h3 style={{paddingBottom: '0.5em'}}>Phenotype</h3>
-		  <Table 
-		  	// dataSource={this.props.hpo_data} 
-		  	columns={columns} 
-		  	rowSelection={{
-	          type: 'checkbox',
-	          onChange: this.onSelectChange,
-	        }} 
-	        pagination={false} 
-	        scroll={{ y: 200 }}/>
+		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
+		  <Grid>
+		  	<GridColumn>
+         	    <Radio.Group onChange={this.handleChange} defaultValue="" buttonStyle="solid">
+         	    	<Radio.Button value="" key="any">Any</Radio.Button>
+         	    	{this.state.options.map(e => {return <Radio.Button value={e} key={e}>{e}</Radio.Button>})}
+         	    </Radio.Group>
+		    </GridColumn>
+		  </Grid>
 		  </div>
 		);
 	}

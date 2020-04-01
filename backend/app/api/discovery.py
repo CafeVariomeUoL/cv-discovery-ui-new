@@ -16,41 +16,51 @@ router = APIRouter()
 
 @router.get("/discovery/getAttributes")
 async def get_attributes():
-    caseQ = case([(
-                eav_lookup.c.arbitrary_input == False,
-                eav_lookup.c.eav_values
-            )])
+    # caseQ = case([(
+    #             eav_lookup.c.arbitrary_input == False,
+    #             eav_lookup.c.eav_values
+    #         )])
     query = select([
-            eav_lookup.c.id,
-            eav_lookup.c.source_id,
-            eav_lookup.c.label,
-            eav_lookup.c.visible,
-            eav_lookup.c.arbitrary_input,
-            eav_lookup.c.eav_attribute,
-            caseQ
+            # eav_lookup.c.id,
+            # eav_lookup.c.source_id,
+            # eav_lookup.c.label,
+            # eav_lookup.c.visible,
+            # eav_lookup.c.arbitrary_input,
+            eav_lookup.c.eav_attribute.label("attribute"),
+            # caseQ
         ])
 
     print(query.compile(compile_kwargs={"literal_binds": True}))
 
-    res = await database.fetch_all(query=query)
-    ret = []
+    return await database.fetch_all(query=query)
+    # ret = []
 
-    for r in res:
-        ret_d = {
-                'attribute': r['eav_attribute'], 
-                'visible': r['visible'],
-                'arbitrary_input': r['arbitrary_input']
-            }
-        if r['label']:
-            ret_d['label'] = r['label']
-        if r['anon_1']:
-            ret_d['values'] = set(r['anon_1'])
+    # for r in res:
+    #     ret_d = {
+    #             'attribute': r['eav_attribute'], 
+    #             'visible': r['visible'],
+    #             'arbitrary_input': r['arbitrary_input']
+    #         }
+    #     if r['label']:
+    #         ret_d['label'] = r['label']
+    #     if r['anon_1']:
+    #         ret_d['values'] = set(r['anon_1'])
 
-        ret.append(ret_d)
-    return ret
+    #     ret.append(ret_d)
+    # return ret
 
 
+@router.get("/discovery/getSettings")
+async def get_settings():
+    # caseQ = case([(
+    #             eav_lookup.c.arbitrary_input == False,
+    #             eav_lookup.c.eav_values
+    #         )])
+    query = select([
+            discovery_settings.c.id,
+        ])
 
+    return await database.fetch_all(query=query)
 
 
 

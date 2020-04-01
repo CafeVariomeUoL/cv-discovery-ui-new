@@ -110,6 +110,97 @@ export const mergeExistsInAnd = (lst) => {
   return rest
 }
 
+
+
+
+
+export const removeEmpty = (o) => {
+  if (o.operator === "and" || o.operator === "or" || o.operator === "exists") {
+    var new_children = []
+    for (var i = 0; i < o.children.length; i++) {
+      if ("attribute" in o.children[i] && o.children[i].value !== "") new_children.push(o.children[i])
+      else if (!("attribute" in o.children[i])) {
+        const res = removeEmpty(o.children[i]);
+        if(res.children.length > 0) new_children.push(res)
+      }
+    }
+    return {...o, children: new_children}
+  } else {
+    return {...o}
+  }
+}
+
+
+export const humanReadableQuery = (q) => {
+  switch (q.operator) {
+    case "and": return "(" + q.children.map(humanReadableQuery).join(" ∧ ") + ")"
+    case "or": return  "(" +  q.children.map(humanReadableQuery).join(" ∨ ") + ")"
+    case "exists": return "(∃ x ∈ " + mkLabel(q.from) + " . " + q.children.map((x) => {return humanReadableQuery(insertAttr(x))}).join("") + ")"
+    case "is": return "(" + mkLabel(q.attribute) + " = " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
+    case "is not": return "(" + mkLabel(q.attribute) + " ≠ " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
+    case "<": return "(" + mkLabel(q.attribute) + " < " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
+    case "<=": return "(" + mkLabel(q.attribute) + " ≤ " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
+    case ">": return "(" + mkLabel(q.attribute) + " > " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
+    case ">=": return "(" + mkLabel(q.attribute) + " ≥ " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
+  }
+}
+
+
+export const generateFinalQuery = (q) => {
+  return removeEmpty(mergeExists({operator:'and', children: q}))
+}
+
+export const pruneTree = (t) => {
+  const root_children = new Set(t.items.root.children);
+  const keys = [...Object.keys(t.items)];
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i] !== "root"){
+      if (!root_children.has(keys[i])) delete t.items[keys[i]]
+      else t.items[keys[i]].children = [];
+    }
+  }
+  return t
+}
+
+
+export const collectQueries = (t, e, q) => 
+  t.items[e].children.map((i) => {
+    if(t.items[i].children.length > 0){
+      const childrenQs = collectQueries(t, i, q);
+      const q_new = {...q[i]};
+      q_new.children = childrenQs;
+      return q_new;
+    }
+    return q[i]
+  })
+
+
+
+
+
+
+export const mkQueryBuilders = (t) => {
+  const keys = [...Object.keys(t.items)].filter((k) => k !== "root");
+  return keys.map((k) => {return {...t.items[k].data, type: t.items[k].type}})
+}
+
+
+const insertAttr = (q) => {
+  switch (q.operator) {
+    case "and":
+    case "or":
+    case "exists":
+      var new_q = {...q}
+      new_q.children = new_q.children.map(insertAttr)
+      return new_q
+    default:
+      var new_q = {...q}
+      new_q.attribute = {'x' : new_q.attribute}
+      return new_q
+  }
+}
+
+
 export const getType = (o) => {
   switch(typeof o){
     case "object": 

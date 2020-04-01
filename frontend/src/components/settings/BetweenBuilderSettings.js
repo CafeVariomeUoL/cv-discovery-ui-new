@@ -6,8 +6,7 @@ import { mkLabel, getType } from '../utils'
 import ToggleStateless from '@atlaskit/toggle';
 
 
-
-export default class ValueBuilderSettings extends React.Component {
+export default class BetweenBuilderSettings extends React.Component {
 
 	state = {
 		data: this.props.data ? this.props.data : {
@@ -32,9 +31,8 @@ export default class ValueBuilderSettings extends React.Component {
 	      .then(
 	        (result) => {
 	          this.setState({
-	            attributes: result.map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})
+	            attributes: result.filter(e => getType(e.attribute) == 'int' || getType(e.attribute) == 'float').map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})
 	          });
-
 	        },
 	        // Note: it's important to handle errors here
 	        // instead of a catch() block so that we don't swallow
@@ -45,7 +43,6 @@ export default class ValueBuilderSettings extends React.Component {
 	          });
 	        }
 	      )
-        this.props.setData(this.state.data);
 	  }
 
 

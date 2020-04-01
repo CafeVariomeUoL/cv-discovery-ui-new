@@ -7,9 +7,10 @@ import Textfield from '@atlaskit/textfield';
 
 export default class EmptyBuilderSettings extends React.Component {
 
-	state = {
+	state = this.props.data ? this.props.data : {
 		operator: '',
-		label: ''
+		label: '',
+		canHaveChildren: true
 	}
 
 	handleChange = prop_name => e =>  {
@@ -35,6 +36,7 @@ export default class EmptyBuilderSettings extends React.Component {
 		  	<h5 style={{paddingBottom: '0.5em'}}>Label:</h5>
 		  <Textfield
 		      name="label"
+  		      defaultValue={this.state.label}
 		      onChange={this.handleChange('label')} 
 		    />
 		  </GridColumn>
@@ -43,6 +45,7 @@ export default class EmptyBuilderSettings extends React.Component {
           <Select
             className="single-select"
           	classNamePrefix="react-select"
+          	defaultValue={{label:this.state.operator, value:this.state.operator}}
             options={[{label: 'and', value:'and'}, {label: 'or', value:'or'}]}
             onChange={this.handleChange('operator')} 
           />

@@ -1,6 +1,7 @@
 import React from 'react';
 import Textfield from '@atlaskit/textfield';
 import { Grid, GridColumn } from '@atlaskit/page';
+import { mkAttrQuery } from './utils';
 
 export default class BetweenBuilder extends React.Component {
 
@@ -13,16 +14,8 @@ export default class BetweenBuilder extends React.Component {
     return {
       operator:"and",
       children: [
-        {
-          attribute: this.props.queryId,
-          operator:'>=',
-          value: s.value1
-        },
-        {
-          attribute: this.props.queryId,
-          operator:'<=',
-          value: s.value2
-        },
+        mkAttrQuery(this.props.attribute, (v)=>v, '>=', s.value1),
+        mkAttrQuery(this.props.attribute, (v)=>v, '<=', s.value2)
       ]
     }
   }

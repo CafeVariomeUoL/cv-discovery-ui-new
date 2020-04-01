@@ -7,20 +7,21 @@ import ToggleStateless from '@atlaskit/toggle';
 
 
 
-export default class ValueBuilderSettings extends React.Component {
+export default class QueryTreeSettings extends React.Component {
 
 	state = {
 		data: this.props.data ? this.props.data : {
 			label:'', 
-			attribute:{}
+			tree:'',
+			dynamic:false
 		},
-		attributes: []
+		trees: []
 	}
 
 
 	componentDidMount() {
 	    fetch(
-	      "http://localhost:8002/discovery/getAttributes", {
+	      "http://localhost:8002/discovery/getSettings", {
 	        headers: {
 	          "Access-Control-Allow-Origin": "*",
 	          'Content-Type': 'application/json',
@@ -32,7 +33,7 @@ export default class ValueBuilderSettings extends React.Component {
 	      .then(
 	        (result) => {
 	          this.setState({
-	            attributes: result.map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})
+	            trees: result.map(e => {return {label:e.id, value:e.id}}).filter((e) => e.label !== this.props.settings_id)
 	          });
 
 	        },
@@ -51,8 +52,11 @@ export default class ValueBuilderSettings extends React.Component {
 
 	handleChange = prop_name => e =>  {
 		const newData = {...this.state.data};
-		if (prop_name === 'attribute'){
+		if (prop_name === 'tree'){
 			newData[prop_name] = e.value;
+		}
+		else if (prop_name === 'dynamic'){
+			newData[prop_name] = !newData[prop_name];
 		}
 		else {
 			newData[prop_name] = e.target.value;
@@ -70,16 +74,6 @@ export default class ValueBuilderSettings extends React.Component {
 	  
 		  <Grid>
 		  <GridColumn medium={5}>
-		  <h5 style={{paddingBottom: '0.5em'}}>Attribute:</h5>
-          <Select
-            className="single-select"
-          	classNamePrefix="react-select"
-            options={this.state.attributes}
-            defaultValue={{label:mkLabel(this.state.data.attribute), value:this.state.data.attribute}}
-            onChange={this.handleChange('attribute')} 
-          />
-		    </GridColumn>
-		  	<GridColumn>
 		  	<h5 style={{paddingBottom: '0.5em'}}>Label:</h5>
 		  <Textfield
 		      name="label"
@@ -87,6 +81,24 @@ export default class ValueBuilderSettings extends React.Component {
 		      onChange={this.handleChange('label')} 
 		    />
 		  </GridColumn>
+
+		  <GridColumn >
+		  <h5 style={{paddingBottom: '0.5em'}}>Select tree:</h5>
+          <Select
+            className="single-select"
+          	classNamePrefix="react-select"
+            options={this.state.trees}
+            defaultValue={{label:this.state.data.tree, value:this.state.data.tree}}
+            onChange={this.handleChange('tree')} 
+          />
+		    </GridColumn>
+		    <GridColumn medium={2}>
+		  	<h5 style={{paddingBottom: '0.5em'}}>Is dynamic:</h5>
+		  	<div style={{boxSizing: 'content-box'}}>
+		  	<ToggleStateless size="large" isDefaultChecked={this.state.data.dynamic} onChange={this.handleChange('dynamic')}/>
+		  	</div>
+		  </GridColumn>
+		  	
 		  </Grid>
 		  </div>
 		);

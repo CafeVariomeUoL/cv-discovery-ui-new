@@ -1,0 +1,123 @@
+*[class^="ant-"], ::before, ::after {
+
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+
+}
+
+
+.ant-radio-group {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 14px;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    list-style: none;
+    -webkit-font-feature-settings: 'tnum';
+    font-feature-settings: 'tnum';
+    display: inline-block;
+    line-height: unset;
+}
+
+ant-radio-button-wrapper-checked:not([class*=" ant-radio-button-wrapper-disabled"]).ant-radio-button-wrapper:first-child {
+    border-right-color: #40a9ff;
+}
+.ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+    color: #fff;
+    background: #0065ff;
+    border-color: #0065ff;
+    border-right-color: rgb(24, 144, 255);
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):first-child {
+    border-color: #0065ff;
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+    z-index: 1;
+    color: #0065ff;
+    background: #fff;
+    border-color: #0065ff;
+}
+.ant-radio-button-wrapper:first-child {
+    border-left: 1px solid #d9d9d9;
+        border-left-color: rgb(217, 217, 217);
+    border-radius: 2px 0 0 2px;
+}
+.ant-radio-button-wrapper {
+    position: relative;
+    display: inline-block;
+    height: 32px;
+    margin: 0;
+    padding: 0 15px;
+    color: rgba(0, 0, 0, 0.65);
+    line-height: 30px;
+    background: #fff;
+    border: 1px solid #d9d9d9;
+        border-top-color: rgb(217, 217, 217);
+        border-top-width: 1px;
+        border-right-color: rgb(217, 217, 217);
+        border-bottom-color: rgb(217, 217, 217);
+        border-left-color: rgb(217, 217, 217);
+        border-left-style: solid;
+        border-left-width: 1px;
+    border-top-width: 1.02px;
+    border-left-width: 0;
+    cursor: pointer;
+    -webkit-transition: color 0.3s, background 0.3s, border-color 0.3s, -webkit-box-shadow 0.3s;
+    transition: color 0.3s, background 0.3s, border-color 0.3s, -webkit-box-shadow 0.3s;
+    transition: color 0.3s, background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    transition: color 0.3s, background 0.3s, border-color 0.3s, box-shadow 0.3s, -webkit-box-shadow 0.3s;
+}
+
+.ant-radio-button-wrapper .ant-radio-inner, .ant-radio-button-wrapper input[type="checkbox"], .ant-radio-button-wrapper input[type="radio"] {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+.ant-radio-button-wrapper > .ant-radio-button {
+    display: block;
+    width: 0;
+    height: 0;
+    margin-left: 0;
+}
+
+.ant-radio-button-wrapper:last-child {
+    border-radius: 0 2px 2px 0;
+}
+
+input[type="radio"], input[type="checkbox"] {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0;
+}
+a, area, button, [role="button"], input:not([type="range"]), label, select, summary, textarea {
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+}
+
+
+.ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+    color: #fff;
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+    color: #0065ff;
+}
+.ant-radio-button-wrapper {
+    color: rgba(0, 0, 0, 0.65);
+    line-height: 30px;
+    cursor: pointer;
+}
+.ant-radio-group {
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 14px;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    list-style: none;
+    font-feature-settings: 'tnum';
+    line-height: unset;
+}

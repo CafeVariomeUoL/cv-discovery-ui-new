@@ -3,7 +3,7 @@ import React from 'react';
 export default class EmptyBuilder extends React.Component {
 	componentDidMount() {
 		this.props.setQuery({
-			operator:this.props.queryId,
+			operator:this.props.operator,
 			children:[]
 		});
 	}

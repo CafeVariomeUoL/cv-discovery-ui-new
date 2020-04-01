@@ -6,13 +6,20 @@ import { mkLabel, getType } from '../utils'
 import ToggleStateless from '@atlaskit/toggle';
 
 
-
-export default class ValueBuilderSettings extends React.Component {
+export default class SliderBetweenBuilderSettings extends React.Component {
 
 	state = {
 		data: this.props.data ? this.props.data : {
 			label:'', 
-			attribute:{}
+			attribute:{},
+			step:1,
+			minVal:0,
+			maxVal:100
+		},
+		invalid: {
+			step:false,
+			minVal:false,
+			maxVal:false
 		},
 		attributes: []
 	}
@@ -32,9 +39,8 @@ export default class ValueBuilderSettings extends React.Component {
 	      .then(
 	        (result) => {
 	          this.setState({
-	            attributes: result.map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})
+	            attributes: result.filter(e => getType(e.attribute) == 'int' || getType(e.attribute) == 'float').map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})
 	          });
-
 	        },
 	        // Note: it's important to handle errors here
 	        // instead of a catch() block so that we don't swallow
@@ -45,19 +51,25 @@ export default class ValueBuilderSettings extends React.Component {
 	          });
 	        }
 	      )
-        this.props.setData(this.state.data);
 	  }
 
 
 	handleChange = prop_name => e =>  {
 		const newData = {...this.state.data};
+		const newInvalid = {...this.state.invalid};
 		if (prop_name === 'attribute'){
 			newData[prop_name] = e.value;
 		}
-		else {
+		else if (prop_name === 'label'){
 			newData[prop_name] = e.target.value;
+		} else if(this.state.data.attribute !== null) {
+			if (getType(this.state.data.attribute) === "int")
+				newData[prop_name] = parseInt(e.target.value);
+			else if (getType(this.state.data.attribute) === "float")
+				newData[prop_name] = parseFloat(e.target.value);
+			newInvalid[prop_name] = isNaN(newData[prop_name]) && !(newData[prop_name] = '')
 		}
-    	this.setState({data: newData});
+    	this.setState({data: newData, invalid: newInvalid});
     	this.props.setData(newData);
 	}
 
@@ -81,13 +93,44 @@ export default class ValueBuilderSettings extends React.Component {
 		    </GridColumn>
 		  	<GridColumn>
 		  	<h5 style={{paddingBottom: '0.5em'}}>Label:</h5>
-		  <Textfield
+		  	<Textfield
 		      name="label"
 		      defaultValue={this.state.data.label}
 		      onChange={this.handleChange('label')} 
 		    />
 		  </GridColumn>
 		  </Grid>
+		  <div style={{paddingTop: '1.5em'}}>
+		  <Grid >
+		  	<GridColumn medium={4}>
+		  	<h5 style={{paddingBottom: '0.5em'}}>Min Value:</h5>
+		  	<Textfield
+		      name="label"
+  		      isInvalid={this.state.invalid.minVal}
+		      defaultValue={this.state.data.minVal}
+		      onChange={this.handleChange('minVal')} 
+		    />
+		  	</GridColumn>
+		    <GridColumn medium={4}>
+		  	<h5 style={{paddingBottom: '0.5em'}}>Max Value:</h5>
+		  	<Textfield
+		      name="label"
+  		      isInvalid={this.state.invalid.maxVal}
+		      defaultValue={this.state.data.maxVal}
+		      onChange={this.handleChange('maxVal')} 
+		    />
+		    </GridColumn>
+		    <GridColumn medium={3}>
+		    <h5 style={{paddingBottom: '0.5em'}}>Step:</h5>
+		  	<Textfield
+		      name="label"
+		      isInvalid={this.state.invalid.step}
+		      defaultValue={this.state.data.step}
+		      onChange={this.handleChange('step')} 
+		    />
+		  	</GridColumn>
+		  </Grid>
+		  </div>
 		  </div>
 		);
 	}

@@ -39,20 +39,6 @@ const PADDING_PER_LEVEL = 30;
 
 
 
-
-
-const collectQueries = (t, e, q) => 
-  t.items[e].children.map((i) => {
-    if(t.items[i].children.length > 0){
-      const childrenQs = collectQueries(t, i, q);
-      const q_new = {...q[i]};
-      q_new.children = childrenQs;
-      return q_new;
-    }
-    return q[i]
-  })
-
-
 const queryBuilders = Object.keys(typeMap).filter(e => 'settings_type' in typeMap[e]).map(e => {return {value:e, label: typeMap[e].label}})
 
 export default class SettingsPage extends Component<Props, State> {
@@ -68,9 +54,7 @@ export default class SettingsPage extends Component<Props, State> {
           hasChildren: true,
           isExpanded: true,
           isChildrenLoading: false,
-          data: {
-            canHaveChildren: true
-          }
+          canHaveChildren: true
         },
       },
     }
@@ -135,7 +119,7 @@ export default class SettingsPage extends Component<Props, State> {
 
   renderBuilderFromTreeItem = (item: TreeItem) => {
     const TypeTag = typeMap[item.type].settings_type
-    return <TypeTag setData={this.storeData(item.id)} data={item.data}/>
+    return <TypeTag setData={this.storeData(item.id)} data={item.data} label={typeMap[item.type].label} settings_id={this.props.match.params.id}/>
   }
 
 
@@ -220,8 +204,6 @@ export default class SettingsPage extends Component<Props, State> {
 
     this.setState({
       tree: newTree,
-      queries: newQueries,
-      query: collectQueries(newTree, 'root', newQueries)
     });
   }
 
@@ -238,13 +220,12 @@ export default class SettingsPage extends Component<Props, State> {
       return;
     }
 
-    if(!tree.items[destination.parentId].data.canHaveChildren){
+    if(!tree.items[destination.parentId].canHaveChildren){
       return;
     }
     const newTree = moveItemOnTree(tree, source, destination);
     this.setState({
       tree: mutateTree(newTree, destination.parentId, { isExpanded: true }),
-      query: collectQueries(newTree, 'root', this.state.queries)
     });
   };
 
@@ -309,7 +290,7 @@ export default class SettingsPage extends Component<Props, State> {
         </div>
          <h4 style={{paddingTop:'30px', paddingBottom:'10px'}}>Tree:</h4>
               <AkCodeBlock 
-                language="text" 
+                language="json" 
                 text={JSON.stringify(this.state.tree, null, 2)} 
                 showLineNumbers={false}/>
       </ContentWrapper> 
