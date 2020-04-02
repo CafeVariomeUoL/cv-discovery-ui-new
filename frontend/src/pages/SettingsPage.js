@@ -64,7 +64,7 @@ export default class SettingsPage extends Component<Props, State> {
 
   componentDidMount() {
     fetch(
-      "http://localhost:8002/discovery/loadSettings?id="+this.props.match.params.id, {
+      process.env.REACT_APP_API_URL+"/discovery/loadSettings?id="+this.props.match.params.id, {
         headers: {
           "Access-Control-Allow-Origin": "*",
           'Content-Type': 'application/json',
@@ -241,7 +241,7 @@ export default class SettingsPage extends Component<Props, State> {
 
   saveTree = () => {
     fetch(
-      "http://localhost:8002/discovery/saveSettings", {
+      process.env.REACT_APP_API_URL+"/discovery/saveSettings", {
         method:'POST',
         headers: {
           'Access-Control-Allow-Origin': '*',

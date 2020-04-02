@@ -21,7 +21,7 @@ export default class QueryTreeSettings extends React.Component {
 
 	componentDidMount() {
 	    fetch(
-	      "http://localhost:8002/discovery/getSettings", {
+	      process.env.REACT_APP_API_URL+"/discovery/getSettings", {
 	        headers: {
 	          "Access-Control-Allow-Origin": "*",
 	          'Content-Type': 'application/json',

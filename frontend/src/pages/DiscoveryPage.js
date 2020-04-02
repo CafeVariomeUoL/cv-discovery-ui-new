@@ -74,7 +74,7 @@ export default class DiscoveryPage extends Component {
 
   componentDidMount() {
     fetch(
-      "http://localhost:8002/discovery/loadSettings?id="+this.props.match.params.id, {
+      process.env.REACT_APP_API_URL+"/discovery/loadSettings?id="+this.props.match.params.id, {
         headers: {
           "Access-Control-Allow-Origin": "*",
           'Content-Type': 'application/json',
@@ -129,7 +129,7 @@ export default class DiscoveryPage extends Component {
     // const jsAPIQuery = generateJsonAPIQuery(this.state.query)
     console.log(JSON.stringify({'query': { 'operator':'and', 'children': this.state.query}}));
     fetch(
-      "http://localhost:8002/query", {
+      process.env.REACT_APP_API_URL+"/query", {
         method:'POST',
         headers: {
           'Access-Control-Allow-Origin': '*',

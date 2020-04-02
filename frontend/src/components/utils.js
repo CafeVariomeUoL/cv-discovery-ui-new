@@ -150,14 +150,20 @@ export const generateFinalQuery = (q) => {
   return removeEmpty(mergeExists({operator:'and', children: q}))
 }
 
-export const pruneTree = (t) => {
-  const root_children = new Set(t.items.root.children);
-  const keys = [...Object.keys(t.items)];
+export const removeQueryBuildersFromTree = (t) => {
+  var deleted_items = [];
+  var keys = Object.keys(t.items);
   for (var i = 0; i < keys.length; i++) {
-    if (keys[i] !== "root"){
-      if (!root_children.has(keys[i])) delete t.items[keys[i]]
-      else t.items[keys[i]].children = [];
+    if (t.items[keys[i]].type === "QueryTree"){
+      delete t.items[keys[i]]
+      deleted_items.push(keys[i])
     }
+  }
+  console.log("deleting: ", deleted_items);
+  deleted_items = new Set(deleted_items);
+  keys = Object.keys(t.items);
+  for (var i = 0; i < keys.length; i++) {
+    t.items[keys[i]].children = t.items[keys[i]].children.filter((k) => !deleted_items.has(k))
   }
   return t
 }

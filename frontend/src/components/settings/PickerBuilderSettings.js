@@ -25,7 +25,7 @@ export default class PickerBuilderSettings extends React.Component {
 
 	componentDidMount() {
 	    fetch(
-	      "http://localhost:8002/discovery/getAttributes", {
+	      process.env.REACT_APP_API_URL+"/discovery/getAttributes", {
 	        headers: {
 	          "Access-Control-Allow-Origin": "*",
 	          'Content-Type': 'application/json',

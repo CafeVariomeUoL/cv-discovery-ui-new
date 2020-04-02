@@ -11,7 +11,7 @@ services:
     networks:
       - postgres
     environment:
-      - DATABASE_URL=postgresql://hello_fastapi:hello_fastapi@db/hello_fastapi_dev
+      DATABASE_URL:${DATABASE_URL:-postgresql://hello_fastapi:hello_fastapi@db/hello_fastapi_dev}
   db:
     image: postgres:12.1-alpine
     volumes:
@@ -37,13 +37,16 @@ services:
       - postgres
     restart: unless-stopped
   dev:
-    image: node:11
+    # image: node:11
+    build: ./frontend
     volumes:
       - ./frontend:/usr/src/service
     working_dir: /usr/src/service
-    command: "yarn start"
+    command: yarn start
     ports:
       - 3000:3000
+    networks:
+      - postgres
     restart: unless-stopped
 
 networks:

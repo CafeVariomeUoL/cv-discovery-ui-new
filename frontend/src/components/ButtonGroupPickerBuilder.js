@@ -21,7 +21,7 @@ export default class ButtonGroupPickerBuilder extends React.Component {
 	componentDidMount() {
 
 		fetch(
-	      "http://localhost:8002/discovery/getAttributeValues", {
+	      process.env.REACT_APP_API_URL+"/discovery/getAttributeValues", {
 	        method:'POST',
 	        headers: {
 	          'Access-Control-Allow-Origin': '*',

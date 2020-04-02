@@ -22,7 +22,8 @@ import BootstrapTable from 'react-bootstrap-table-next';
 
 import { typeMap } from '../components/TypesWOQueryTree'
 
-import { mergeExists, mkLabel, pruneTree, mkQueryBuilders, generateFinalQuery, collectQueries } from './utils';
+import { mergeExists, mkLabel, removeQueryBuildersFromTree, mkQueryBuilders, generateFinalQuery, collectQueries } from './utils';
+
 
 const PADDING_PER_LEVEL = 30;
 
@@ -91,7 +92,7 @@ export default class QueryTree extends Component<Props, State> {
   
   componentDidMount() {
     fetch(
-      "http://localhost:8002/discovery/loadSettings?id="+this.props.tree, {
+      process.env.REACT_APP_API_URL+"/discovery/loadSettings?id="+this.props.tree, {
         headers: {
           "Access-Control-Allow-Origin": "*",
           'Content-Type': 'application/json',
@@ -104,8 +105,8 @@ export default class QueryTree extends Component<Props, State> {
         (result) => {
           // console.log("Tree: ");
           if(result){
-            const newTree = JSON.parse(result);
-            // console.log("Tree:", this.props.tree, );
+            const newTree = removeQueryBuildersFromTree(JSON.parse(result));
+            console.log("Tree:", newTree);
             // console.log("prune&mkQueryTree:", pruneTree(mkQueryTree(JSON.parse(result))));
             this.setState({
               queryBuilders: this.props.dynamic ? mkQueryBuilders(newTree) : this.state.queryBuilders,
