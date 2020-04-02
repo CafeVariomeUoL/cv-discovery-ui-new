@@ -32,6 +32,6 @@ COPY --from=frontend /app/frontend/build /app/discovery
 
 RUN mkdir /var/sockets
 
-RUN apt-get -y install gettext-base && cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.template && 
+RUN apt-get -y install gettext-base && cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.template
 
 # --reload --workers 4 --proxy-headers 
