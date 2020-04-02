@@ -32,6 +32,10 @@ COPY --from=frontend /app/frontend/build /app/discovery
 
 RUN mkdir /var/sockets
 
-RUN apt-get -y install gettext-base && cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.template
+COPY ./start.sh /app
 
-# --reload --workers 4 --proxy-headers 
+RUN chmod +x /app/start.sh
+
+ENTRYPOINT ["/app/start.sh"]
+
+CMD []
