@@ -8,34 +8,32 @@ RUN cd frontend && yarn install && yarn build
 
 
 # pull official base image
-FROM python:3.8-slim
+FROM tiangolo/uvicorn-gunicorn:python3.7
 
 # set work directory
 WORKDIR /app
 
-# set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
 
-# copy requirements file
 COPY ./backend/requirements.txt /app/requirements.txt
 
 # install dependencies
-RUN set -eux \
-    && apk add --no-cache --virtual .build-deps build-base \
-        libressl-dev libffi-dev gcc musl-dev python3-dev \
-        postgresql-dev \
-    && pip install --upgrade pip setuptools wheel \
-    && pip install -r /app/requirements.txt \
-    && rm -rf /root/.cache/pip
+RUN apt-get -y update && apt-get install -y vim nginx
+
+RUN    pip install -r /app/requirements.txt \
+    && pip install fastapi
 
 # copy project
 COPY ./backend /app
 
+COPY nginx.conf /etc/nginx/
+
+CMD sed -i -e 's/$PORT/'"$PORT"'/g' /etc/nginx/nginx.conf
+
 
 COPY --from=frontend /app/frontend/build /app/discovery
 
+RUN mkdir /var/sockets
 
-ENV PORT=8000
-EXPOSE $PORT
-CMD uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port $PORT
+CMD service nginx start && uvicorn app.main:app --uds /var/sockets/uvicorn.sock
+
+# --reload --workers 4 --proxy-headers 

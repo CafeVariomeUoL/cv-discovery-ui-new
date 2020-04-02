@@ -47,7 +47,7 @@
     "react-scripts": "^3.4.0",
     "surge": "^0.21.3"
   },
-  "homepage": "/discovery_react/",
+  "homepage": "/discovery/",
   "browserslist": {
     "production": [
       ">0.2%",
