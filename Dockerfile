@@ -26,7 +26,6 @@ RUN    pip install -r /app/requirements.txt \
 COPY ./backend /app
 
 COPY nginx.conf /etc/nginx/
-CMD sed -i -e 's/$PORT/'"$PORT"'/g' /etc/nginx/nginx.conf && nginx -g 'daemon off;'
 
 
 COPY --from=frontend /app/frontend/build /app/discovery

@@ -6,4 +6,7 @@ build:
     web: Dockerfile
 
 run:
-  web: uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port $PORT #uvicorn app.main:app --uds /var/sockets/uvicorn.sock
+  web: apt-get -y install gettext-base && cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.template && envsubst "\$PORT" < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && service nginx start && uvicorn app.main:app --uds /var/sockets/uvicorn.sock
+
+
+  # uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port $PORT #uvicorn app.main:app --uds /var/sockets/uvicorn.sock
