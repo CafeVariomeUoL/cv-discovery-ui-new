@@ -4,7 +4,5 @@ setup:
 build:
   docker:
     web: backend/Dockerfile
-  config:
-    DATABASE_URL: postgres://ihixsqcyvpyxaz:cbdfbf238312c89dbdd26f0ee7fc146545de1180c97129be4470f919a8b566ed@ec2-54-152-175-141.compute-1.amazonaws.com:5432/d3qnug7fe81830
 run:
   web: uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 8000
