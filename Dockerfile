@@ -8,7 +8,7 @@ RUN cd frontend && yarn install && yarn build
 
 
 # pull official base image
-FROM python:3.8.1-alpine
+FROM python:3.8-slim
 
 # set work directory
 WORKDIR /app
@@ -18,7 +18,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # copy requirements file
-COPY ./app/requirements.txt /app/requirements.txt
+COPY ./backend/requirements.txt /app/requirements.txt
 
 # install dependencies
 RUN set -eux \
@@ -26,14 +26,14 @@ RUN set -eux \
         libressl-dev libffi-dev gcc musl-dev python3-dev \
         postgresql-dev \
     && pip install --upgrade pip setuptools wheel \
-    && pip install -r /usr/src/app/requirements.txt \
+    && pip install -r /app/requirements.txt \
     && rm -rf /root/.cache/pip
 
 # copy project
-COPY . /app
+COPY ./backend /app
 
 
-COPY --from=frontend /app/frontend/build /app/frontend/build
+COPY --from=frontend /app/frontend/build /app/discovery
 
 
 ENV PORT=8000

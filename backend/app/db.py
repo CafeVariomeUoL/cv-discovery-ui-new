@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from databases import Database
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL").replace("postgres://", "postgresql://")
 
 # SQLAlchemy
 engine = create_engine(DATABASE_URL)
