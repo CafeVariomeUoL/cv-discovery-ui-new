@@ -34,6 +34,6 @@ COPY --from=frontend /app/frontend/build /app/discovery
 
 RUN mkdir /var/sockets
 
-CMD service nginx start && uvicorn app.main:app --uds /var/sockets/uvicorn.sock
+CMD uvicorn app.main:app --uds /var/sockets/uvicorn.sock
 
 # --reload --workers 4 --proxy-headers 
