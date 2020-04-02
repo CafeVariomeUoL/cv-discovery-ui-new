@@ -27,13 +27,11 @@ COPY ./backend /app
 
 COPY nginx.conf /etc/nginx/
 
-CMD sed -i -e 's/$PORT/'"$PORT"'/g' /etc/nginx/nginx.conf
-
 
 COPY --from=frontend /app/frontend/build /app/discovery
 
 RUN mkdir /var/sockets
 
-CMD uvicorn app.main:app --uds /var/sockets/uvicorn.sock
+CMD service nginx start && uvicorn app.main:app --uds /var/sockets/uvicorn.sock
 
 # --reload --workers 4 --proxy-headers 
