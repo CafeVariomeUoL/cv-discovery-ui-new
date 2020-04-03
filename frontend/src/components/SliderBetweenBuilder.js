@@ -1,7 +1,7 @@
 import React from 'react';
 import { Slider } from 'antd';
 import { Grid, GridColumn } from '@atlaskit/page';
-import { mkAttrQuery } from './utils';
+import { mkAttrQuery } from '../utils/utils';
 import './Slider.css'
 // import 'antd/dist/antd.css'
 

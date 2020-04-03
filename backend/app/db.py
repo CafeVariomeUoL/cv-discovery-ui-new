@@ -36,48 +36,57 @@ eavs = Table(
 )
 
 
-eavs2 = Table(
-    "eavs2",
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
-    Column("subject_id", String(256), nullable=False),
-    Column("attribute", JSONB, nullable=False),
-    Column("path", Text, nullable=False),
-    Column("type", String(50), nullable=False),
-    Column("value", Text, nullable=False)
-)
+# eavs2 = Table(
+#     "eavs2",
+#     metadata,
+#     Column("id", Integer, primary_key=True),
+#     Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
+#     Column("subject_id", String(256), nullable=False),
+#     Column("attribute", JSONB, nullable=False),
+#     Column("path", Text, nullable=False),
+#     Column("type", String(50), nullable=False),
+#     Column("value", Text, nullable=False)
+# )
 
 
-eav_lookup = Table(
-    "eav_lookup",
+# eav_lookup = Table(
+#     "eav_lookup",
+#     metadata,
+#     Column("id", String(256), primary_key=True),
+#     Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
+#     Column("label", String(256)),
+#     Column("visible", Boolean, nullable=False),
+#     Column("arbitrary_input", Boolean, nullable=False),
+#     Column("eav_attribute", JSON, nullable=False),
+#     Column("eav_values", JSONB, nullable=False)
+# )
+
+
+eav_attributes = Table(
+    "eav_attributes",
     metadata,
     Column("id", String(256), primary_key=True),
     Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
-    Column("label", String(256)),
-    Column("visible", Boolean, nullable=False),
-    Column("arbitrary_input", Boolean, nullable=False),
     Column("eav_attribute", JSON, nullable=False),
-    Column("eav_values", JSONB, nullable=False)
 )
 
 
-eav_meta = Table(
-    "eav_meta",
-    metadata,
-    Column("id", String(256), primary_key=True),
-    Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
-    Column("label", String(256)),
-    Column("visible", Boolean, nullable=False),
-    Column("arbitrary_input", Boolean, nullable=False),
-    Column("eav_attribute", JSON, nullable=False)
-)
+# eav_meta = Table(
+#     "eav_meta",
+#     metadata,
+#     Column("id", String(256), primary_key=True),
+#     Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
+#     Column("label", String(256)),
+#     Column("visible", Boolean, nullable=False),
+#     Column("arbitrary_input", Boolean, nullable=False),
+#     Column("eav_attribute", JSON, nullable=False)
+# )
 
 eav_values = Table(
     "eav_values",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("eav_id", String(256), ForeignKey(eav_meta.c.id)),
+    Column("eav_id", String(256), ForeignKey(eav_attributes.c.id)),
     Column("value", String(256), nullable=False)
 )
 

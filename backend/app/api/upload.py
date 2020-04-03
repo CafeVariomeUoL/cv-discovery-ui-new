@@ -2,7 +2,7 @@ import os, shutil, json, time
 from pathlib import Path
 from fastapi import APIRouter, File, UploadFile
 from typing import Optional, List
-from app.db import sources, eav_lookup, eav_values, eav_meta, eavs, database, engine
+from app.db import sources, eav_attributes, eav_values, eavs, database, engine
 from app.api.process.phenopacket import process_phenopacket
 from app.api.process.xlsx import process_xlsx
 from app.api.process.vcf import process_vcf
@@ -74,8 +74,7 @@ async def process_file(file_name: str, name: str = None, empty_delim: List[str] 
 
 @router.put("/eavs/clearDB")
 async def clear_db():
-    await database.execute(query=eav_lookup.delete())
-    await database.execute(query=eav_meta.delete())
+    await database.execute(query=eav_attributes.delete())
     await database.execute(query=eav_values.delete())
     await database.execute(query=eavs.delete())
     await database.execute(query=sources.delete())

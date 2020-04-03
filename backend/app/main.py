@@ -7,7 +7,8 @@ from starlette.middleware.cors import CORSMiddleware
 metadata.create_all(engine)
 
 
-app = FastAPI()
+app = FastAPI(docs_url="/api/docs", redoc_url="/api/redoc")
+
 
 origins = [
     "http://localhost",

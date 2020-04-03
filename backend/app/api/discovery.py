@@ -2,7 +2,7 @@ import os, shutil, json, time
 from pathlib import Path
 from fastapi import APIRouter, File, UploadFile
 from typing import Optional, List
-from app.db import sources, eav_lookup, eav_values, eav_meta, eavs, discovery_settings, database, engine
+from app.db import sources, eav_attributes, eav_values, eavs, discovery_settings, database, engine
 from sqlalchemy.dialects.postgresql import insert
 
 from app.api.process.phenopacket import process_phenopacket
@@ -16,46 +16,17 @@ router = APIRouter()
 
 @router.get("/discovery/getAttributes")
 async def get_attributes():
-    # caseQ = case([(
-    #             eav_lookup.c.arbitrary_input == False,
-    #             eav_lookup.c.eav_values
-    #         )])
     query = select([
-            # eav_lookup.c.id,
-            # eav_lookup.c.source_id,
-            # eav_lookup.c.label,
-            # eav_lookup.c.visible,
-            # eav_lookup.c.arbitrary_input,
-            eav_lookup.c.eav_attribute.label("attribute"),
-            # caseQ
+            eav_attributes.c.eav_attribute.label("attribute"),
         ])
 
     print(query.compile(compile_kwargs={"literal_binds": True}))
 
     return await database.fetch_all(query=query)
-    # ret = []
-
-    # for r in res:
-    #     ret_d = {
-    #             'attribute': r['eav_attribute'], 
-    #             'visible': r['visible'],
-    #             'arbitrary_input': r['arbitrary_input']
-    #         }
-    #     if r['label']:
-    #         ret_d['label'] = r['label']
-    #     if r['anon_1']:
-    #         ret_d['values'] = set(r['anon_1'])
-
-    #     ret.append(ret_d)
-    # return ret
 
 
 @router.get("/discovery/getSettings")
 async def get_settings():
-    # caseQ = case([(
-    #             eav_lookup.c.arbitrary_input == False,
-    #             eav_lookup.c.eav_values
-    #         )])
     query = select([
             discovery_settings.c.id,
         ])
@@ -64,24 +35,24 @@ async def get_settings():
 
 
 
-@router.get("/discovery/getAttributes2")
-async def get_attributes2():
-    statement = text("""select
-        m.eav_attribute AS attribute,
-        m.label, 
-        m.visible, 
-        m.arbitrary_input, 
-        case when (m.arbitrary_input = false) then (
-            select case when (count(x) < 50) then array_agg(x.value) end from (
-                select distinct value from eavs2 where attribute = m.id
-            ) x
-        ) end as values
-        from eav_meta as m""")
+# @router.get("/discovery/getAttributes2")
+# async def get_attributes2():
+#     statement = text("""select
+#         m.eav_attribute AS attribute,
+#         m.label, 
+#         m.visible, 
+#         m.arbitrary_input, 
+#         case when (m.arbitrary_input = false) then (
+#             select case when (count(x) < 50) then array_agg(x.value) end from (
+#                 select value from eavs2 where attribute = m.id
+#             ) x
+#         ) end as values
+#         from eav_meta as m""")
 
-    # print(query.compile(compile_kwargs={"literal_binds": True}))
+#     # print(query.compile(compile_kwargs={"literal_binds": True}))
 
-    rs = engine.execute(statement)
-    return list(rs)
+#     rs = engine.execute(statement)
+#     return list(rs)
     
 
 
@@ -93,13 +64,13 @@ async def get_attributes_vals(payload: AttributeValues):
     if payload.string:
         string = '%' + payload.string + '%'
         statement = text("""select array_agg(x.value) 
-          from (select distinct value from eav_values where eav_id = :id and value like :str limit :limit
+          from (select value from eav_values where eav_id = :id and value like :str limit :limit
           ) x""")
 
         rs = engine.execute(statement, id=attr_id, limit=limit, str=string)
     else:
         statement = text("""select array_agg(x.value) 
-          from (select distinct value from eav_values where eav_id = :id limit :limit
+          from (select value from eav_values where eav_id = :id limit :limit
           ) x""")
 
         rs = engine.execute(statement, id=attr_id, limit=limit)

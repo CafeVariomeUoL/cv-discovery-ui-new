@@ -4,9 +4,9 @@ import Spinner from '@atlaskit/spinner';
 import ContentWrapper from '../components/ContentWrapper';
 import PageTitle from '../components/PageTitle';
 import QueryTree from '../components/QueryTree';
-import { mkLabel, getType, mergeExists, removeEmpty, humanReadableQuery, generateFinalQuery, pruneTree, mkQueryTree, collectQueries } from '../components/utils'
+import { mkLabel, getType, mergeExists, removeEmpty, humanReadableQuery, generateFinalQuery, pruneTree, mkQueryTree, collectQueries } from '../utils/utils'
 
-import { typeMap } from '../components/Types'
+import { typeMap } from '../components/types'
 
 import styled from 'styled-components';
 import Tree, {

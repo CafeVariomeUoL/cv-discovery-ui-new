@@ -1,6 +1,6 @@
 // export {default as VariantBuilder} from './VariantBuilder';
 
-import {typeMap as typeMapWOQueryTree} from './TypesWOQueryTree'
+import {typeMap as typeMapWOQueryTree} from './typesWOQueryTree'
 
 import QueryTree from './QueryTree';
 

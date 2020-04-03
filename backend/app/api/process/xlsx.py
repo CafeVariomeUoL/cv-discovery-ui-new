@@ -1,10 +1,10 @@
 import pandas as pd, re, json
 from sqlalchemy.dialects.postgresql import insert
-from app.db import eavs, eav_lookup, database
+from app.db import eavs, eav_attributes, eav_values, database, engine
 from app.api import process
 from app.utils.types import supertype, cast
 from app.utils.paths import HashableDict, HashableList, zip_map, map_, prune_empty, flatten, create_all_paths, collect_value_from_path
-from app.utils.process import processing_done
+from app.utils.process import processing_done, clean_up_eav_values
 
 
 
@@ -69,19 +69,21 @@ async def mk_json_structure_insert_into_eav_lookup(source_id, headers, empty_del
         values = flatten(collect_value_from_path(p, res_all_vals))
         filter(lambda x: str(x) not in empty_delim, values)
         # print(values)
+        eav_id = json.dumps(p)
 
-        query = insert(eav_lookup).values(
-                id=json.dumps(p),
+        query = insert(eav_attributes).values(
+                id=eav_id,
                 source_id=source_id,
                 eav_attribute= p,
-                visible=True,
-                arbitrary_input=False,
-                eav_values= values
-            ).on_conflict_do_update(
-                index_elements=['id'],
-                set_ = dict(eav_values=eav_lookup.c.eav_values + values), 
-            )
-        database.execute(query=query)
+            ).on_conflict_do_nothing()
+            # .on_conflict_do_nothing()
+            #     index_elements=['id'],
+            #     set_ = dict(eav_values=eav_lookup.c.eav_values + values), 
+            # )
+        await database.execute(query=query)
+        buf = [{'eav_id':eav_id, 'value':v} for v in values]
+        engine.execute(eav_values.insert(), buf)
+
 
     return zip_map(res, res_type, lambda x, y: (x,y))
 
@@ -107,8 +109,9 @@ async def insert_xlsx_into_eavs(source_id, structure, empty_delim, data):
                 'data': prune_empty(d)
             })
 
+    print(buf)
     query = eavs.insert().values(buf)
-    database.execute(query=query)
+    await database.execute(query=query)
 
 
 async def process_xlsx(source_id, file_name, empty_delim):
@@ -124,4 +127,5 @@ async def process_xlsx(source_id, file_name, empty_delim):
     structure = await mk_json_structure_insert_into_eav_lookup(source_id, headers, empty_delim, df)
 
     await insert_xlsx_into_eavs(source_id, structure, empty_delim, df)
+    clean_up_eav_values()
     await processing_done(source_id)

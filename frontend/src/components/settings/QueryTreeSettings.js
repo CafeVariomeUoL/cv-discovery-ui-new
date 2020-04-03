@@ -2,7 +2,7 @@ import React from 'react';
 import Select from '@atlaskit/select';
 import { Grid, GridColumn } from '@atlaskit/page';
 import Textfield from '@atlaskit/textfield';
-import { mkLabel, getType } from '../utils'
+import { mkLabel, getType } from '../../utils/utils'
 import ToggleStateless from '@atlaskit/toggle';
 
 

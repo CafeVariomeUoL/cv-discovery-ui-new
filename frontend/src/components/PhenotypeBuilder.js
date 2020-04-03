@@ -2,7 +2,7 @@ import React from 'react';
 import Select from '@atlaskit/select';
 import { Grid, GridColumn } from '@atlaskit/page';
 import { Table, Tag } from 'antd';
-import { mkAttrQuery } from './utils';
+import { mkAttrQuery } from '../utils/utils';
 
 
 const columns = [

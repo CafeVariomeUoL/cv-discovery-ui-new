@@ -32,7 +32,7 @@ import Collapsible from 'react-collapsible';
 
 // import { jsonAPI } from './jsonAPI';
 // import { mergeExists, mkLabel } from './utils';
-import { typeMap } from '../components/Types'
+import { typeMap } from '../components/types'
 
 
 const PADDING_PER_LEVEL = 30;

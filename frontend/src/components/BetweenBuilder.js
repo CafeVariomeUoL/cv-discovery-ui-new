@@ -1,7 +1,7 @@
 import React from 'react';
 import Textfield from '@atlaskit/textfield';
 import { Grid, GridColumn } from '@atlaskit/page';
-import { mkAttrQuery } from './utils';
+import { mkAttrQuery } from '../utils/utils';
 
 export default class BetweenBuilder extends React.Component {
 

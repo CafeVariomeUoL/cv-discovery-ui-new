@@ -3,7 +3,7 @@ import Select from '@atlaskit/select';
 import { Grid, GridColumn } from '@atlaskit/page';
 import Textfield from '@atlaskit/textfield';
 import { DatePicker } from '@atlaskit/datetime-picker';
-import { mkAttrQuery } from './utils';
+import { mkAttrQuery } from '../utils/utils';
 
 
 const opts = [
@@ -67,7 +67,7 @@ export default class ValueBuilder extends React.Component {
 		// console.log(this.props)
 
 		fetch(
-	      "http://localhost:8002/discovery/getAttributeValues", {
+	      process.env.REACT_APP_API_URL+"/discovery/getAttributeValues", {
 	        method:'POST',
 	        headers: {
 	          'Access-Control-Allow-Origin': '*',

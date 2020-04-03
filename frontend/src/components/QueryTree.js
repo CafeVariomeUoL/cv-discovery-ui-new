@@ -20,9 +20,9 @@ import BootstrapTable from 'react-bootstrap-table-next';
 // import Collapsible from 'react-collapsible';
 
 
-import { typeMap } from '../components/TypesWOQueryTree'
+import { typeMap } from './typesWOQueryTree'
 
-import { mergeExists, mkLabel, removeQueryBuildersFromTree, mkQueryBuilders, generateFinalQuery, collectQueries } from './utils';
+import { mergeExists, mkLabel, removeQueryBuildersFromTree, mkQueryBuilders, generateFinalQuery, collectQueries } from '../utils/utils';
 
 
 const PADDING_PER_LEVEL = 30;

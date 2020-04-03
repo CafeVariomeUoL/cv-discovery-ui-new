@@ -1,8 +1,8 @@
 import json, datetime, os, app.utils.VCF as VCF
 from sqlalchemy.dialects.postgresql import insert
 
-from app.db import eavs, eavs2, eav_lookup, sources, database, engine 
-from app.utils.process import processing_done
+from app.db import eavs, eav_attributes, eav_values, sources, database, engine 
+from app.utils.process import processing_done, clean_up_eav_values
 from app.utils.types import supertype, cast_
 from app.utils.paths import map_, get_leaf
 
@@ -203,9 +203,9 @@ def create_eav_structure_vcf(source_id, file_name, empty_delim):
 #                         'data': data
 #                     })
 
-#     end = time.time()
-#     print("Finished chunk ", chunkStart, "time:", end - start, "count: ", count, "per second: ", count / (end - start))
-#     # return buf
+    end = time.time()
+    print("Finished chunk ", chunkStart, "time:", end - start, "count: ", count, "per second: ", count / (end - start))
+    # return buf
 
 
 # def chunkify(fname,size=1024*1024):
@@ -239,65 +239,73 @@ async def process_old(source_id, file_name, empty_delim, eav_types):
     count = 0
     max_count = 10000000
     buf = []
+    bufVal = []
+    eav_attrs = set()
+
     for v in VCF.lines(file_name):
         count = count + 1
         if (count > max_count):
             break
         d_v = dict(v)
+        data = {}
 
         subject_id = d_v['ID'] if 'ID' in d_v.keys() and d_v['ID'] is not None else count
+        
 
         for key, value in d_v.items():
             if value:
-                if type(eav_types[key]) is list and type(value) is list:
-                    attr = {}
-                    attr[key] = eav_types[key]
-                    path = str(key) + '.'
 
-                    for i,v in enumerate(value):
-                        if v not in empty_delim:
-                            buf.append({
-                                'source_id': source_id,
-                                'subject_id': subject_id,
-                                'attribute': map_(attr, lambda x: x.__name__),
-                                'path': path + str(i),
-                                'type': try_parse_ty(v).__name__,
-                                'value': v
-                            })
+                attr = {}
+                attr[key] = eav_types[key]
+                attr = map_(attr, lambda x: x.__name__)
+                eav_id = json.dumps(attr)
+
+                if eav_id not in eav_attrs:
+                    eav_attrs.add(eav_id)
+
+                    queryAttr = insert(eav_attributes).values(
+                            id=eav_id,
+                            source_id=source_id,
+                            eav_attribute=attr,
+                        ).on_conflict_do_nothing()
+                    await database.execute(query=queryAttr)
+
+                if type(eav_types[key]) is list and type(value) is list:
+                    bufVal = bufVal + [{'eav_id':eav_id, 'value':v} for v in value]
+                    data[key] = [cast_(eav_types[key])(x) for x in value if x not in empty_delim]
 
                 elif type(eav_types[key]) is list and type(value) is not list and value not in empty_delim:
-                    attr = {}
-                    attr[key] = eav_types[key]
-                    buf.append({
-                        'source_id': source_id,
-                        'subject_id': subject_id,
-                        'attribute': map_(attr, lambda x: x.__name__),
-                        'path': str(key) + '.0',
-                        'type': try_parse_ty(value).__name__,
-                        'value': value
-                    })
+                    bufVal.append({
+                            'eav_id': eav_id,
+                            'value': value
+                        })
+
+                    data[key] = [cast_(eav_types[key])(value)]
                 elif value not in empty_delim:
-                    attr = {}
-                    attr[key] = eav_types[key]
-                    buf.append({
-                        'source_id': source_id,
-                        'subject_id': subject_id,
-                        'attribute': map_(attr, lambda x: x.__name__),
-                        'path': str(key),
-                        'type': try_parse_ty(value).__name__,
-                        'value': value
-                    })
+                    bufVal.append({
+                            'eav_id': eav_id,
+                            'value': value
+                        })
 
-            if len(buf) > 10000:
-                end = time.time()
-                engine.execute(eavs2.insert(), buf)
-                buf = []
-                print("per second: ", 10000 / (end - start))
-                start = end
+                    data[key] = cast_(eav_types[key])(value)
 
-    engine.execute(eavs2.insert(), buf)
+        buf.append({
+            'source_id': source_id,
+            'subject_id': subject_id,
+            'data': data
+        })
 
+        if len(buf) > 10000:
+            end = time.time()
+            engine.execute(eavs.insert(), buf)
+            engine.execute(eav_values.insert(), bufVal)
+            buf = []
+            bufVal = []
+            print("per second: ", 10000 / (end - start))
+            start = end
 
+    engine.execute(eavs.insert(), buf)
+    engine.execute(eav_values.insert(), bufVal)
 
 
 
@@ -338,5 +346,5 @@ async def process_vcf(source_id, file_name, empty_delim):
     # print(source_id)
     await process_old(source_id, file_name, empty_delim, eav_types)
 
-
+    clean_up_eav_values()
     await processing_done(source_id)

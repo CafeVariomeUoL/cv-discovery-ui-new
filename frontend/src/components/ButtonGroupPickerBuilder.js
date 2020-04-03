@@ -1,7 +1,7 @@
 import React from 'react';
 import { Radio } from 'antd';
 import { Grid, GridColumn } from '@atlaskit/page';
-import { mkAttrQuery } from './utils';
+import { mkAttrQuery } from '../utils/utils';
 import './ButtonGroup.css'
 
 

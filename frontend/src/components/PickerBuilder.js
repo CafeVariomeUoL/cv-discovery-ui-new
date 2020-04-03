@@ -3,7 +3,7 @@ import Select from '@atlaskit/select';
 import { Grid, GridColumn } from '@atlaskit/page';
 import Textfield from '@atlaskit/textfield';
 import { DatePicker } from '@atlaskit/datetime-picker';
-import { mkAttrQuery } from './utils';
+import { mkAttrQuery } from '../utils/utils';
 
 
 const opts = [
