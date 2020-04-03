@@ -280,7 +280,7 @@ async def process_old(source_id, file_name, empty_delim, eav_types):
 
                             bufVal.append({
                                 'eav_id': eav_id,
-                                'value': value
+                                'value': v
                             })
 
                     data[key] = [cast_(eav_types[key])(x) for x in value if x not in empty_delim]
