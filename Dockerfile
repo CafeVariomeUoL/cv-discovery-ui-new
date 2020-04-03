@@ -31,6 +31,7 @@ COPY nginx.conf /etc/nginx/
 COPY --from=frontend /app/frontend/build /app/discovery
 
 RUN mkdir /var/sockets
+RUN mkdir /app/uploads
 
 COPY ./start.sh /app
 

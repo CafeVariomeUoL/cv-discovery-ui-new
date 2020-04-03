@@ -11,7 +11,7 @@ from databases import Database
 DATABASE_URL = os.getenv("DATABASE_URL").replace("postgres://", "postgresql://")
 
 # SQLAlchemy
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, executemany_mode='batch')
 metadata = MetaData()
 
 
@@ -65,7 +65,7 @@ eavs = Table(
 eav_attributes = Table(
     "eav_attributes",
     metadata,
-    Column("id", String(256), primary_key=True),
+    Column("id", String, primary_key=True),
     Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
     Column("eav_attribute", JSON, nullable=False),
 )
@@ -86,8 +86,8 @@ eav_values = Table(
     "eav_values",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("eav_id", String(256), ForeignKey(eav_attributes.c.id)),
-    Column("value", String(256), nullable=False)
+    Column("eav_id", String, ForeignKey(eav_attributes.c.id)),
+    Column("value", String, nullable=False)
 )
 
 

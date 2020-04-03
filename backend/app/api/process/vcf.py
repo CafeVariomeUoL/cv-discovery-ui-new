@@ -241,6 +241,7 @@ async def process_old(source_id, file_name, empty_delim, eav_types):
     buf = []
     bufVal = []
     eav_attrs = set()
+    eav_attr_vals = {}
 
     for v in VCF.lines(file_name):
         count = count + 1
@@ -259,6 +260,8 @@ async def process_old(source_id, file_name, empty_delim, eav_types):
                 attr[key] = eav_types[key]
                 attr = map_(attr, lambda x: x.__name__)
                 eav_id = json.dumps(attr)
+                if eav_id not in eav_attr_vals:
+                    eav_attr_vals[eav_id] = set()
 
                 if eav_id not in eav_attrs:
                     eav_attrs.add(eav_id)
@@ -271,21 +274,33 @@ async def process_old(source_id, file_name, empty_delim, eav_types):
                     await database.execute(query=queryAttr)
 
                 if type(eav_types[key]) is list and type(value) is list:
-                    bufVal = bufVal + [{'eav_id':eav_id, 'value':v} for v in value]
+                    for v in value:
+                        if v not in eav_attr_vals[eav_id]:
+                            eav_attr_vals[eav_id].add(v)
+
+                            bufVal.append({
+                                'eav_id': eav_id,
+                                'value': value
+                            })
+
                     data[key] = [cast_(eav_types[key])(x) for x in value if x not in empty_delim]
 
                 elif type(eav_types[key]) is list and type(value) is not list and value not in empty_delim:
-                    bufVal.append({
-                            'eav_id': eav_id,
-                            'value': value
-                        })
+                    if value not in eav_attr_vals[eav_id]:
+                        eav_attr_vals[eav_id].add(value)
+                        bufVal.append({
+                                'eav_id': eav_id,
+                                'value': value
+                            })
 
                     data[key] = [cast_(eav_types[key])(value)]
                 elif value not in empty_delim:
-                    bufVal.append({
-                            'eav_id': eav_id,
-                            'value': value
-                        })
+                    if value not in eav_attr_vals[eav_id]:
+                        eav_attr_vals[eav_id].add(value)
+                        bufVal.append({
+                                'eav_id': eav_id,
+                                'value': value
+                            })
 
                     data[key] = cast_(eav_types[key])(value)
 
@@ -295,14 +310,20 @@ async def process_old(source_id, file_name, empty_delim, eav_types):
             'data': data
         })
 
-        if len(buf) > 10000:
-            end = time.time()
-            engine.execute(eavs.insert(), buf)
+        if len(bufVal) > 1000:
+            print("got here...bufVal")
             engine.execute(eav_values.insert(), bufVal)
-            buf = []
             bufVal = []
-            print("per second: ", 10000 / (end - start))
+
+        if len(buf) > 1000:
+            print("got here...")
+            engine.execute(eavs.insert(), buf)
+            end = time.time()
+            buf = []
+            print("per second: ", 1000 / (end - start))
             start = end
+
+        
 
     engine.execute(eavs.insert(), buf)
     engine.execute(eav_values.insert(), bufVal)
