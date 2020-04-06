@@ -122,7 +122,7 @@ export const removeEmpty = (o) => {
   if (o.operator === "and" || o.operator === "or" || o.operator === "exists") {
     var new_children = []
     for (var i = 0; i < o.children.length; i++) {
-      if ("attribute" in o.children[i] && o.children[i].value !== "") new_children.push(o.children[i])
+      if ("attribute" in o.children[i] && o.children[i].value && o.children[i].value !== '') new_children.push(o.children[i])
       else if (!("attribute" in o.children[i])) {
         const res = removeEmpty(o.children[i]);
         if(res.children.length > 0) new_children.push(res)
