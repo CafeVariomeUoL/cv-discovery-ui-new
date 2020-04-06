@@ -4,6 +4,7 @@ import { Grid, GridColumn } from '@atlaskit/page';
 import Textfield from '@atlaskit/textfield';
 import { mkLabel, getType } from '../../utils/utils'
 import ToggleStateless from '@atlaskit/toggle';
+import { getAttributes } from '../../utils/api'
 
 
 export default class BetweenBuilderSettings extends React.Component {
@@ -18,17 +19,7 @@ export default class BetweenBuilderSettings extends React.Component {
 
 
 	componentDidMount() {
-	    fetch(
-	      process.env.REACT_APP_API_URL+"/discovery/getAttributes", {
-	        headers: {
-	          "Access-Control-Allow-Origin": "*",
-	          'Content-Type': 'application/json',
-	          'Accept': 'application/json',
-	          'X-Requested-With': 'XMLHttpRequest'
-	        }
-	      })
-	      .then(res => res.json())
-	      .then(
+	    getAttributes(
 	        (result) => {
 	          this.setState({
 	            attributes: result.filter(e => getType(e.attribute) == 'int' || getType(e.attribute) == 'float').map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})
@@ -42,7 +33,7 @@ export default class BetweenBuilderSettings extends React.Component {
 	            error: error
 	          });
 	        }
-	      )
+	    )
 	  }
 
 

@@ -3,6 +3,8 @@ import Select from '@atlaskit/select';
 import { Grid, GridColumn } from '@atlaskit/page';
 import Textfield from '@atlaskit/textfield';
 import { mkLabel, getType } from '../../utils/utils'
+import { getAttributes } from '../../utils/api'
+
 import ToggleStateless from '@atlaskit/toggle';
 
 
@@ -19,17 +21,7 @@ export default class ValueBuilderSettings extends React.Component {
 
 
 	componentDidMount() {
-	    fetch(
-	      process.env.REACT_APP_API_URL+"/discovery/getAttributes", {
-	        headers: {
-	          "Access-Control-Allow-Origin": "*",
-	          'Content-Type': 'application/json',
-	          'Accept': 'application/json',
-	          'X-Requested-With': 'XMLHttpRequest'
-	        }
-	      })
-	      .then(res => res.json())
-	      .then(
+	    getAttributes(
 	        (result) => {
 	          this.setState({
 	            attributes: result.map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})
@@ -44,7 +36,7 @@ export default class ValueBuilderSettings extends React.Component {
 	            error: error
 	          });
 	        }
-	      )
+	    )
         this.props.setData(this.state.data);
 	  }
 

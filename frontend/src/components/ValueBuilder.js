@@ -5,7 +5,6 @@ import Textfield from '@atlaskit/textfield';
 import { DatePicker } from '@atlaskit/datetime-picker';
 import { mkAttrQuery } from '../utils/utils';
 
-
 const opts = [
 	      { label: 'IS', value: 'is' },
 	      { label: 'IS LIKE', value: 'is like' },
@@ -38,34 +37,8 @@ export default class ValueBuilder extends React.Component {
 	}
 
 	componentDidMount() {
-		// this.props.setQuery(this.mkQuery(this.state));
-		// console.log(this.props)
 
-		fetch(
-	      process.env.REACT_APP_API_URL+"/discovery/getAttributeValues", {
-	        method:'POST',
-	        headers: {
-	          'Access-Control-Allow-Origin': '*',
-	          'Content-Type': 'application/json',
-	          'Accept': 'application/json',
-	          'X-Requested-With': 'XMLHttpRequest'
-	        },
-	        body: JSON.stringify({attribute: this.props.attribute})
-	      })
-	      .then(res => res.json())
-	      .then(
-	        (result) => {
-	          console.log(result);
-	           if(result) this.setState({options: result.map((e) => {return {label:e, value:e}})});
-	        },
-	        // Note: it's important to handle errors here
-	        // instead of a catch() block so that we don't swallow
-	        // exceptions from actual bugs in components.
-	        (error) => {
-	          console.log(error)
-	        })
-
-	    console.log("setting query", this.mkQuery(this.state))
+	    // console.log("setting query", this.mkQuery(this.state))
         this.props.setQuery(this.mkQuery(this.state));
 
 	}

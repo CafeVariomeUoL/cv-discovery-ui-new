@@ -10,7 +10,7 @@ import EmptyBuilder from './EmptyBuilder';
 
 
 
-// import VariantBuilderSettings from './settings/VariantBuilderSettings';
+import VariantBuilderSettings from './settings/VariantBuilderSettings';
 import BetweenBuilderSettings from './settings/BetweenBuilderSettings';
 import SliderBetweenBuilderSettings from './settings/SliderBetweenBuilderSettings';
 import PickerBuilderSettings from './settings/PickerBuilderSettings';
@@ -54,5 +54,10 @@ export const typeMap = {
     	type: PhenotypeBuilder, 
     	settings_type: ValueBuilderSettings,
     	label: 'Phenotype input' 
+    },
+    'VariantBuilder': {
+        type: VariantBuilder,
+        settings_type: VariantBuilderSettings,
+        label: 'Variant input'
     },
   }

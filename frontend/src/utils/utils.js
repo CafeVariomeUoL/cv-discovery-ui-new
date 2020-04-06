@@ -55,7 +55,11 @@ export const mergeExists = (o) => {
       return o_new
     case "and":
       var o_new = {...o}
-      if('children' in o) o_new.children = mergeExistsInAnd(o_new.children.map(mergeExists))
+      if('children' in o && !o.dontGroupExists) o_new.children = mergeExistsInAnd(o_new.children.map(mergeExists))
+      else {
+        o_new.children = o_new.children.map(mergeExists)
+        delete o_new.dontGroupExists
+      }
       if (o_new.children.length === 1) return o_new.children[0];
       return o_new
     case "or":
@@ -133,8 +137,8 @@ export const removeEmpty = (o) => {
 
 export const humanReadableQuery = (q) => {
   switch (q.operator) {
-    case "and": return "(" + q.children.map(humanReadableQuery).join(" ∧ ") + ")"
-    case "or": return  "(" +  q.children.map(humanReadableQuery).join(" ∨ ") + ")"
+    case "and": return "(" + q.children.map(humanReadableQuery).join(" ∧\n ") + ")"
+    case "or": return  "(" +  q.children.map(humanReadableQuery).join(" ∨\n ") + ")"
     case "exists": return "(∃ x ∈ " + mkLabel(q.from) + " . " + q.children.map((x) => {return humanReadableQuery(insertAttr(x))}).join("") + ")"
     case "is": return "(" + mkLabel(q.attribute) + " = " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
     case "is not": return "(" + mkLabel(q.attribute) + " ≠ " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
