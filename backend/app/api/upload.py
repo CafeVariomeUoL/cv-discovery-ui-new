@@ -74,7 +74,7 @@ async def process_file(file_name: str, name: str = None, empty_delim: List[str] 
 
 @router.put("/eavs/clearDB")
 async def clear_db():
-    await database.execute(query=sources.delete())
-    await database.execute(query=eav_attributes.delete())
-    await database.execute(query=eav_values.delete())
     await database.execute(query=eavs.delete())
+    await database.execute(query=eav_values.delete())
+    await database.execute(query=eav_attributes.delete())
+    await database.execute(query=sources.delete())
