@@ -467,25 +467,6 @@
     react-transition-group "^2.2.1"
     tslib "^1.9.3"
 
-"@atlaskit/tag-group@^9.0.6":
-  version "9.0.6"
-  resolved "https://registry.yarnpkg.com/@atlaskit/tag-group/-/tag-group-9.0.6.tgz#77c0eb8742dd8032816145cd12840808f68b5303"
-  integrity sha512-lSR0I4t/t4SFLA6gojQtIjGL2X/MOwKul5QykqKHhj4Enu70OHbkKFUbPRuWFyhMCUbfyz45c12n0jrc3uVMHw==
-  dependencies:
-    tslib "^1.9.3"
-
-"@atlaskit/tag@^9.1.0":
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/@atlaskit/tag/-/tag-9.1.0.tgz#2fb8a00aefcad2aac50febc03be63fb0502f2c5a"
-  integrity sha512-UH0l8qTtx8MH1JNSi0MbuveUy2JNxpG5FmlIB13EU2iI3mqm2WyZt6iYtrrG9CcelIxmNF3e2DsjuhQYEat5xw==
-  dependencies:
-    "@atlaskit/analytics-next" "^6.3.5"
-    "@atlaskit/icon" "^20.0.2"
-    "@atlaskit/theme" "^9.5.1"
-    create-error "^0.3.1"
-    debug "^2.2.0"
-    tslib "^1.9.3"
-
 "@atlaskit/textfield@^3.1.7", "@atlaskit/textfield@^3.1.8":
   version "3.1.8"
   resolved "https://registry.yarnpkg.com/@atlaskit/textfield/-/textfield-3.1.8.tgz#daa918f56cfdb532eaf7ec68aa7e8d7ed8e8171d"
@@ -3573,6 +3554,11 @@ clone-deep@^4.0.1:
     kind-of "^6.0.2"
     shallow-clone "^3.0.0"
 
+clsx@^1.0.1:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.1.0.tgz#62937c6adfea771247c34b54d320fb99624f5702"
+  integrity sha512-3avwM37fSK5oP6M5rQ9CNe99lwxhXDOeSWVPAOYF6OazUTgZCMb0yWlJpmdD74REy1gkEaFiub2ULv4fq9GUhA==
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
@@ -3880,11 +3866,6 @@ create-ecdh@^4.0.0:
   dependencies:
     bn.js "^4.1.0"
     elliptic "^6.0.0"
-
-create-error@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/create-error/-/create-error-0.3.1.tgz#69810245a629e654432bf04377360003a5351a23"
-  integrity sha1-aYECRaYp5lRDK/BDdzYAA6U1GiM=
 
 create-hash@^1.1.0, create-hash@^1.1.2:
   version "1.2.0"
@@ -4484,6 +4465,14 @@ dom-helpers@^3.4.0:
   integrity sha512-LnuPJ+dwqKDIyotW1VzmOZ5TONUN7CwkCR5hrgawTUbkBGYdeoNLZo6nNfGkCrjtE1nXXaj7iMMpDa8/d9WoIA==
   dependencies:
     "@babel/runtime" "^7.1.2"
+
+dom-helpers@^5.0.0:
+  version "5.1.4"
+  resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-5.1.4.tgz#4609680ab5c79a45f2531441f1949b79d6587f4b"
+  integrity sha512-TjMyeVUvNEnOnhzs6uAn9Ya47GmMo3qq7m+Lr/3ON0Rs5kHvb8I+SQYjLUSYn7qhEm0QjW0yrBkvz9yOrwwz1A==
+  dependencies:
+    "@babel/runtime" "^7.8.7"
+    csstype "^2.6.7"
 
 dom-helpers@^5.0.1:
   version "5.1.3"
@@ -7586,7 +7575,7 @@ loglevel@^1.6.6:
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.6.7.tgz#b3e034233188c68b889f5b862415306f565e2c56"
   integrity sha512-cY2eLFrQSAfVPhCgH1s7JI73tMbg9YC3v3+ZHVW67sBS7UxWzNEk/ZBbSfLykBWHp33dqqtOv82gjhKEi81T/A==
 
-loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.2.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
+loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.2.0, loose-envify@^1.3.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
@@ -10437,6 +10426,18 @@ react-uid@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/react-uid/-/react-uid-2.2.0.tgz#0f77e1e0594fbf29fc4fe528cc9aa415c5bf9159"
   integrity sha512-z+g5+hFOQ08hCfrGcJ1PNs+cmvH8Uq2CVzCmPeWBsUi5A4W4NWXR5jouledzy3oSKGMU9HOzf8zFuGi15TXJoQ==
+
+react-virtualized@^9.21.2:
+  version "9.21.2"
+  resolved "https://registry.yarnpkg.com/react-virtualized/-/react-virtualized-9.21.2.tgz#02e6df65c1e020c8dbf574ec4ce971652afca84e"
+  integrity sha512-oX7I7KYiUM7lVXQzmhtF4Xg/4UA5duSA+/ZcAvdWlTLFCoFYq1SbauJT5gZK9cZS/wdYR6TPGpX/dqzvTqQeBA==
+  dependencies:
+    babel-runtime "^6.26.0"
+    clsx "^1.0.1"
+    dom-helpers "^5.0.0"
+    loose-envify "^1.3.0"
+    prop-types "^15.6.0"
+    react-lifecycles-compat "^3.0.4"
 
 react@^16.8.2:
   version "16.13.0"

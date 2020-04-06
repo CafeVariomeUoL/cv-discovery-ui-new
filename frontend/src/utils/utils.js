@@ -47,7 +47,7 @@ export const mkAttrQuery = (attr, attr_acc, op, val) => {
 
 
 export const mergeExists = (o) => {
-  console.log("got:", o)
+  // console.log("got:", o)
   switch(o.operator){
     case "exists": 
       var o_new = {...o}

@@ -109,9 +109,12 @@ async def insert_xlsx_into_eavs(source_id, structure, empty_delim, data):
                 'data': prune_empty(d)
             })
 
-    print(buf)
-    query = eavs.insert().values(buf)
-    await database.execute(query=query)
+        if len(buf) > 1000:
+            print("got here...")
+            engine.execute(eavs.insert(), buf)
+            buf = []
+
+    engine.execute(eavs.insert(), buf)
 
 
 async def process_xlsx(source_id, file_name, empty_delim):

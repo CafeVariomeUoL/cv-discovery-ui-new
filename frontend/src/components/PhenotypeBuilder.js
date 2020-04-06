@@ -1,9 +1,14 @@
 import React from 'react';
 import { Grid, GridColumn } from '@atlaskit/page';
-import { Table, Tag } from 'antd';
-import { mkAttrQuery } from '../utils/utils';
-import { getAttributeValues } from '../utils/api'
+import { Checkbox } from '@atlaskit/checkbox';
+import Textfield from '@atlaskit/textfield';
 
+import { Tag, Tooltip } from 'antd';
+import { mkAttrQuery } from '../utils/utils';
+import { getAttributeValuesLimitOffset } from '../utils/api'
+import { List,AutoSizer } from 'react-virtualized'
+
+import './PhenotypeBuilder.css'
 
 const columns = [
   {
@@ -17,21 +22,38 @@ export default class PhenotypeBuilder extends React.Component {
 	state = {
 		selectedRowKeys: [], // Check here to configure the default column
 		hpo_data: [],
+		filtered_data: [],
+		// filter_str:'',
 	};
+
 
 	componentDidMount() {
 
-		getAttributeValues(this.props.attribute,
+		getAttributeValuesLimitOffset(this.props.attribute, 500, 0,
 	        (result) => {
 	          console.log(result);
-	           if(result) this.setState({hpo_data: result.map((e) => {return {key: e, hpo:e}})});
+	           if(result) {
+	           	const s = new Set();
+	           	this.setState({hpo_data: result, filtered_data: result, selectedRowKeys: s});
+	           	getAttributeValuesLimitOffset(this.props.attribute, null, 50,
+			        (result) => {
+			          console.log(result);
+			           if(result) this.setState((oldState, _) => 
+          				{return {...oldState, hpo_data: [...new Set([...oldState.hpo_data, ...result])] , filtered_data: [...new Set([...oldState.hpo_data, ...result])] }})
+
+			        },
+	
+			        (error) => {
+			          console.log(error)
+			        }
+			      )
+	           }
 	        },
-	        // Note: it's important to handle errors here
-	        // instead of a catch() block so that we don't swallow
-	        // exceptions from actual bugs in components.
+
 	        (error) => {
 	          console.log(error)
-	        })
+	        }
+	    )
 
         this.props.setQuery(this.mkQuery(this.state));
 
@@ -42,45 +64,86 @@ export default class PhenotypeBuilder extends React.Component {
 		return {
 	      operator:"and",
 	      dontGroupExists: true,
-	      children: state.selectedRowKeys.map((e) => mkAttrQuery(this.props.attribute, (v)=>v, 'is', e))
+	      children: [...state.selectedRowKeys].map((e) => mkAttrQuery(this.props.attribute, (v)=>v, 'is', e))
 	    }
 	}
 
-	onSelectChange = selectedRowKeys => {
-	    const newState = {...this.state, selectedRowKeys: selectedRowKeys.sort(), pills: selectedRowKeys.sort()};
-	    this.setState(newState);
-	    this.props.setQuery(this.mkQuery(newState));
-	};
 
-	removeTag = e => {
-		const newState = {...this.state, selectedRowKeys: this.state.selectedRowKeys.filter((x) => x !== e)};
+	toggleTag = i => () => {
+		const newState = {...this.state};
+		if(newState.selectedRowKeys.has(i)){
+			newState.selectedRowKeys.delete(i)
+		} else {
+			newState.selectedRowKeys.add(i)
+		}
 		this.setState(newState);
+		this.list.forceUpdateGrid()
 	    this.props.setQuery(this.mkQuery(newState));
 	}
+
+	trimOrPad = e => {
+		if(this.props.tag_length === -1) return e;
+		if(e.length < this.props.tag_length) return e + ' '.repeat(this.props.tag_length-e.length)
+		else return e.substring(0,this.props.tag_length)
+	}
+
+
+	rowRenderer = ({ index, isScrolling, key, style }) => {
+	    return (
+	      <div key={key} className="listItem" style={style}>
+	      <Grid>
+	      <GridColumn medium={1}>
+	        <Checkbox
+	          isChecked={this.state.selectedRowKeys.has(this.state.filtered_data[index])}
+	          onChange={this.toggleTag(this.state.filtered_data[index])}
+	          name="checkbox-basic"
+	        />
+        </GridColumn>
+        <GridColumn>
+	        <div>{this.state.filtered_data[index]}</div>
+	        </GridColumn>
+	      </Grid>
+	      </div>
+	    );
+	  }
+
+	handleChange = e => {
+		const str = e.target.value.toLowerCase();
+		const data = str ? this.state.hpo_data.filter(item =>
+          item.toLowerCase().includes(str)
+        ) : this.state.hpo_data;
+		// console.log(data);
+   		this.setState({filtered_data: data});
+	}
+
 	
 	render() {
-		const { selectedRowKeys } = this.state;
+		const { selectedRowKeys, filtered_data } = this.state;
+		// console.log(filtered_data.length)
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
-		  <h3 style={{paddingBottom: '0.5em'}}>Phenotype</h3>
-		  <Table 
-		  	dataSource={this.state.hpo_data} 
-		  	columns={columns} 
-		  	rowSelection={{
-		  	  selectedRowKeys,
-	          type: 'checkbox',
-	          onChange: this.onSelectChange,
-	        }} 
-	        pagination={false} 
-	        scroll={{ y: 200 }}/>
+		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
+		  <Textfield
+		      name="value-low"
+		      onChange={this.handleChange} 
+		    />
+		  <AutoSizer disableHeight>
+		  {({width}) => <List
+		  	  ref={ref => this.list = ref}
+	          rowCount={filtered_data.length}
+	          height={300}
+	          width={width}
+	          rowHeight={40}
+	          rowRenderer={this.rowRenderer}
+	          overscanRowCount={3}
+	        />}
+	     </AutoSizer>
 	     <div style={{marginTop: '1.5em'}}><h5 style={{paddingBottom: '0.5em'}}>Selected:</h5>
 
-	     {selectedRowKeys.map((e) => {return (<Tag
+	     {[...selectedRowKeys].map((i) => {return (<Tooltip key={i} placement="top" title={i}><Tag
           closable
-          key={e}
-          visible
-          onClose={() => this.removeTag(e)}
-        >{e}</Tag>)})}
+          onClose={this.toggleTag(i)}
+        >{this.trimOrPad(i)}</Tag></Tooltip>)})}
 	        </div>
 		
 		  </div>

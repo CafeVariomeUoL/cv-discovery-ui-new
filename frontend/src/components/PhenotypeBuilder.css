@@ -1,0 +1,8 @@
+.listItem{
+	position: relative;
+	cursor: default;
+}
+
+.listItem:hover {
+	background-color: #DFE1E6;
+}

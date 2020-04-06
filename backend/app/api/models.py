@@ -14,7 +14,7 @@ class AttributeValues(BaseModel):
     attribute: dict
     string: Optional[str]
     limit: Optional[int]
-
+    offset: Optional[int]
 
 class DiscoverySettings(BaseModel):
     id_:str

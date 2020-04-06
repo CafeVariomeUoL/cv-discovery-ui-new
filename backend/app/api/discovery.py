@@ -35,45 +35,26 @@ async def get_settings():
 
 
 
-# @router.get("/discovery/getAttributes2")
-# async def get_attributes2():
-#     statement = text("""select
-#         m.eav_attribute AS attribute,
-#         m.label, 
-#         m.visible, 
-#         m.arbitrary_input, 
-#         case when (m.arbitrary_input = false) then (
-#             select case when (count(x) < 50) then array_agg(x.value) end from (
-#                 select value from eavs2 where attribute = m.id
-#             ) x
-#         ) end as values
-#         from eav_meta as m""")
-
-#     # print(query.compile(compile_kwargs={"literal_binds": True}))
-
-#     rs = engine.execute(statement)
-#     return list(rs)
-    
-
 
 @router.post("/discovery/getAttributeValues")
 async def get_attributes_vals(payload: AttributeValues):
     attr_id = json.dumps(payload.attribute)
-    limit = payload.limit if payload.limit else 50
 
+    string = '%' + payload.string + '%' if payload.string else ''
+    stm = """select array_agg(x.value) 
+              from (select value from eav_values where eav_id = :id"""
     if payload.string:
-        string = '%' + payload.string + '%'
-        statement = text("""select array_agg(x.value) 
-          from (select value from eav_values where eav_id = :id and value like :str limit :limit
-          ) x""")
+        stm = stm + ' and value like :str'
+    if payload.limit:
+        stm = stm + ' limit :limit'
+    if payload.offset:
+        stm = stm + ' offset :offset'
+    stm = stm + ') x'
 
-        rs = engine.execute(statement, id=attr_id, limit=limit, str=string)
-    else:
-        statement = text("""select array_agg(x.value) 
-          from (select value from eav_values where eav_id = :id limit :limit
-          ) x""")
+    print(text(stm))
 
-        rs = engine.execute(statement, id=attr_id, limit=limit)
+    rs = engine.execute(text(stm), id=attr_id, limit=payload.limit, offset=payload.offset, str=string)
+    
     return list(rs)[0]['array_agg']
     
 
