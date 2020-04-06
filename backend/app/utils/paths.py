@@ -54,10 +54,11 @@ def map_(t1, f):
 
 def get_leaf(t1):
     if type(t1) is dict:
-        return get_leaf(next(iter(t1)))
-    if type(t1) is list:
+        return get_leaf(t1[next(iter(t1))])
+    elif type(t1) is list:
         return get_leaf(t1[0])
-    return t1
+    else:
+        return t1
 
 def prune_empty(x):
     if type(x) is dict:

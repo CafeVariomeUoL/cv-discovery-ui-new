@@ -3,9 +3,10 @@ import os, shutil, json
 from fastapi import APIRouter, File, UploadFile
 from app.db import eavs, database
 from app.api.models import *
-from app.utils.paths import map_
+from app.utils.paths import map_, get_leaf
 from sqlalchemy import and_, or_, func, exists, select, column, Integer, Float
 from sqlalchemy.dialects import postgresql
+from app.utils.types import cast, str_to_ty
 
 router = APIRouter()
 
@@ -35,7 +36,8 @@ def mkPathStm(stm, eav, getJSONobject = False):
 
 def optimiseQuery(q: Union[BaseQuery, GroupQuery]):
     if isinstance(q, BaseQuery) and q.operator == "is":
-        return IsQuery(attribute=map_(q.attribute, lambda x: q.value))
+        print(q.attribute, get_leaf(q.attribute))
+        return IsQuery(attribute=map_(q.attribute, lambda x: cast(q.value, str_to_ty(get_leaf(q.attribute)))))
 
     # rewrite an `∃ x ∈ S. x = a` into `_ @> S({[x:a]})` optimised query
     if isinstance(q, GroupQuery) and q.operator == Quantifier.exists:

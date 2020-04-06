@@ -14,6 +14,13 @@ def supertype(ts):
     raise ValueError("Don't know how to choose a supertype for ", ts)
 
 
+def str_to_ty(s):
+    if s == 'float': return float
+    if s == 'int': return int
+    if s == 'str': return str
+    raise ValueError("Don't know the type ", s)
+  
+
 def cast(val, ty):
     if type(val) is ty:
         if ty is datetime.datetime:
