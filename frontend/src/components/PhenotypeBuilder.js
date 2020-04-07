@@ -90,18 +90,16 @@ export default class PhenotypeBuilder extends React.Component {
 
 	rowRenderer = ({ index, isScrolling, key, style }) => {
 	    return (
-	      <div key={key} className="listItem" style={style} onClick={this.toggleTag(this.state.filtered_data[index])}>
+	      <div key={key} className="listItem" style={{...style, display:'flex', alignItems: 'center'}} onClick={this.toggleTag(this.state.filtered_data[index])}>
 
-		      <div style={{paddingTop:'7px', paddingLeft:'10px'}}>
+		      <div style={{paddingTop:'2px', paddingLeft:'10px', paddingRight:'8px'}}>
 		        <Checkbox
 		          isChecked={this.state.selectedRowKeys.has(this.state.filtered_data[index])}
 		          onChange={this.toggleTag(this.state.filtered_data[index])}
 		          name="checkbox-basic"
 		        /></div>
 	        
-		        <div style={{
-			        position: 'absolute', top: '8px', left:'50px'
-			    }}>{this.state.filtered_data[index]}</div>
+		        <div >{this.state.filtered_data[index]}</div>
 
 	      </div>
 	    );
