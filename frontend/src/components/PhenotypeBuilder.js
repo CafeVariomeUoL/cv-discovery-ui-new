@@ -90,19 +90,19 @@ export default class PhenotypeBuilder extends React.Component {
 
 	rowRenderer = ({ index, isScrolling, key, style }) => {
 	    return (
-	      <div key={key} className="listItem" style={style}>
-	      <Grid>
-	      <GridColumn medium={1}>
-	        <Checkbox
-	          isChecked={this.state.selectedRowKeys.has(this.state.filtered_data[index])}
-	          onChange={this.toggleTag(this.state.filtered_data[index])}
-	          name="checkbox-basic"
-	        />
-        </GridColumn>
-        <GridColumn>
-	        <div>{this.state.filtered_data[index]}</div>
-	        </GridColumn>
-	      </Grid>
+	      <div key={key} className="listItem" style={style} onClick={this.toggleTag(this.state.filtered_data[index])}>
+
+		      <div style={{paddingTop:'7px', paddingLeft:'10px'}}>
+		        <Checkbox
+		          isChecked={this.state.selectedRowKeys.has(this.state.filtered_data[index])}
+		          onChange={this.toggleTag(this.state.filtered_data[index])}
+		          name="checkbox-basic"
+		        /></div>
+	        
+		        <div style={{
+			        position: 'absolute', top: '8px', left:'50px'
+			    }}>{this.state.filtered_data[index]}</div>
+
 	      </div>
 	    );
 	  }
@@ -123,15 +123,19 @@ export default class PhenotypeBuilder extends React.Component {
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
 		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
+		  <div style={{paddingBottom: '0.5em', paddingLeft:'42px'}}>
 		  <Textfield
-		      name="value-low"
+		      name="filter"
+		      placeholder="Filter..."
 		      onChange={this.handleChange} 
 		    />
+		    </div>
 		  <AutoSizer disableHeight>
 		  {({width}) => <List
 		  	  ref={ref => this.list = ref}
 	          rowCount={filtered_data.length}
-	          height={300}
+	          style={{outline:0}}
+	          height={280}
 	          width={width}
 	          rowHeight={40}
 	          rowRenderer={this.rowRenderer}

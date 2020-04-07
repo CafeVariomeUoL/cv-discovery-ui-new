@@ -1,8 +1,11 @@
 .listItem{
-	position: relative;
+	/*display: flex;*/
+    /*align-items: center;*/
+    /*justify-content: center;*/
 	cursor: default;
 }
 
 .listItem:hover {
 	background-color: #DFE1E6;
+
 }
