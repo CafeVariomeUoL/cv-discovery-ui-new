@@ -37,8 +37,8 @@ services:
       - postgres
     restart: unless-stopped
   dev:
-    # image: node:11
-    build: ./frontend
+    image: node:12
+    # build: ./frontend
     volumes:
       - ./frontend:/usr/src/service
     working_dir: /usr/src/service
@@ -47,6 +47,16 @@ services:
       - 3000:3000
     networks:
       - postgres
+    restart: unless-stopped
+  docs:
+    # image: node:11
+    build: ./docs
+    volumes:
+      - ./docs:/usr/src/service
+    working_dir: /usr/src/service
+    command: "docsify serve ."
+    ports:
+      - 3001:3000
     restart: unless-stopped
 
 networks:
