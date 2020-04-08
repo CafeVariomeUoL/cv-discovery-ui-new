@@ -222,9 +222,9 @@ The corresponding API query is:
 ```
 
 
-### Queries over lists
+### Queries over arrays
 
-So far, we can query arbitrary nesting of JSON dicts. However, we also want to be able to extend our record to have a list of attributes, such as:
+So far, we can query arbitrary nesting of JSON dicts. However, we also want to be able to extend our record to have an array/list of attributes, such as:
 
 ```json
 {
@@ -240,19 +240,79 @@ So far, we can query arbitrary nesting of JSON dicts. However, we also want to b
 }
 ```
 
-When querying the parameter `hospital_visits` the most likely query we want to ask is if there exists an element in the list of `hospital_visits` such that `?`. For example, this is the query for finding all patients that had a hospital visit after January 1st, 2020:
+When querying the parameter `hospital_visits` the most likely query we want to ask is, does there exists an element in the list of `hospital_visits` such that `...`. For example, this is the query for finding the number of patients that visited the hospital after January 1st, 2020:
 
 
 ```sql
-select * from eavs where 
+select count(*) from eavs where 
     exists (select * from jsonb_array_elements(data -> 'hospital_visits') as x where 
         (x::text)::timestamp > '2020-01-01T00:00:00.000Z')
 ```
 
+However, this query is quite inefficient when querying a large dataset. We would instead run the following equivalent query:
+
+```sql
+select count(distinct(subject_id)) from eavs, jsonb_array_elements(data -> 'hospital_visits') as x where (x::text)::timestamp > '2020-01-01T00:00:00.000Z'
+```
+
+To run the same query via the REST API, we use the `exists` operator (**TODO queries over timestamp are not actually implemened yet!!**):
+
+```json
+{
+    "query": {
+        "operator": "exists",
+        "from": {"hospital_visits": "array"},
+        "children": [
+            {
+                "attribute": "timestamp",
+                "operator": ">",
+                "value": "2020-01-01T00:00:00.000Z"
+            }
+        ]
+    }
+}
+```
+
+We can of course also have complex objects inside the array:
 
 
-The reason why we have an `exists` query, is the following. Say
+```json
+{
+    "id": 1,
+    "name": "Jane Doe",
+    "age": 30,
+    "gender": "female",
+    "stats": {
+        "height": 186,
+        "blood_group": "AB"
+    },
+    "hospital_visits": [
+    	{"date": "2020-04-08T00:00:00.000Z", "doctor_id":20}, 
+    	{"date": "2020-01-26T00:00:00.000Z", "doctor_id":127}
+    ]
+}
+```
 
+The SQL query for the number of patients seen by `doctor_id` 127 would then be:
 
-at in order to query a record like 
+```sql 
+select count(distinct(subject_id)) from eavs, jsonb_array_elements(data -> 'hospital_visits') as x where (x ->> 'doctor_id')::integer = 127
+```
 
+The corresponding API query is:
+
+```json
+{
+    "query": {
+        "operator": "exists",
+        "from": {"hospital_visits": "array"},
+        "children": [
+            {
+                "attribute": {"doctor_id" : "int"},
+                "operator": "is",
+                "value": "127"
+            }
+        ]
+    }
+}
+```
