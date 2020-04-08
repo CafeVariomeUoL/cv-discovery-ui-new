@@ -329,11 +329,11 @@ The frontend is built using React and can be found in `frontend/src`. There are 
 
 The discovery page is dynamically loaded by calling the `/api/loadSettings` endpoint, whcih returns a JSON object, encoding the view. This view is made up of components, found in `frontend/src/componets/`. The components are shown below, along with the kind of queries they generate:
 
-![Button group](screenshot/button_group.png)
+<img src="screenshot/button_group.png" alt="Button group" style="width:100%; max-width:800px;" />
 
-![Dropdown](screenshot/dropdown.png)
+<img src="screenshot/dropdown.png" alt="Dropdown" style="width:100%; max-width:800px;" />
 
-![Text input](screenshot/text_input.png)
+<img src="screenshot/text_input.png" alt="Text input" style="width:100%; max-width:800px;" />
 
 
 ```json
@@ -360,7 +360,7 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
 
 ---
 
-![List](screenshot/list.png)
+<img src="screenshot/list.png" alt="List" style="width:100%; max-width:800px;" />
 
 ```json
 {
@@ -382,9 +382,9 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
 
 ---
 
-![Range](screenshot/range.png)
+<img src="screenshot/range.png" alt="Range" style="width:100%; max-width:800px;" />
 
-![Range slider](screenshot/range_slider.png)
+<img src="screenshot/range_slider.png" alt="Range slider" style="width:100%; max-width:800px;" />
 
 ```json
 {
@@ -412,11 +412,14 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
 
 In the examples above, the `<attribute>` can be set in the settings page. Each of the components above has a settings box, where this, and other parameters can be set. For example, if we set the box attribute to `REF` in the example below:
 
-![Button group settings](screenshot/button_group_setting.png)
+
+<img src="screenshot/button_group_setting.png" alt="Button group settings" style="width:100%; max-width:800px;" />
 
 then selecting the value `T`:
 
-![Button group T selected](screenshot/button_group_t.png)
+<img src="screenshot/button_group_t.png" alt="Button group T selected" style="width:100%; max-width:800px;" />
+
+
 
 generates:
 
