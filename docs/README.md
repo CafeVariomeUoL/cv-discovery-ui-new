@@ -338,27 +338,23 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
 
 ```json
 {
-    "query": {
-        "attribute": <attribute>,
-        "operator": "is",
-        "value": <value>
-    }
+    "attribute": <attribute>,
+    "operator": "is",
+    "value": <value>
 }
 ```
 
 ```json
 {
-    "query": {
-        "operator": "exists",
-        "from": <attribute1>,
-        "children": [
-            {
-                "attribute": <attribute2>,
-                "operator": "is",
-                "value": <value>
-            }
-        ]
-    }
+    "operator": "exists",
+    "from": <attribute1>,
+    "children": [
+        {
+            "attribute": <attribute2>,
+            "operator": "is",
+            "value": <value>
+        }
+    ]
 }
 ```
 
@@ -368,21 +364,19 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
 
 ```json
 {
-    "query": {
-        "operator": "and",
-        "children": [
-            {
-                "attribute": <attribute>,
-                "operator": "is",
-                "value": <value1>
-            }, 
-            {
-                "attribute": <attribute>,
-                "operator": "is",
-                "value": <value2>
-            }
-        ]
-    }
+    "operator": "and",
+    "children": [
+        {
+            "attribute": <attribute>,
+            "operator": "is",
+            "value": <value1>
+        }, 
+        {
+            "attribute": <attribute>,
+            "operator": "is",
+            "value": <value2>
+        }
+    ]
 }
 ```
 
@@ -394,21 +388,19 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
 
 ```json
 {
-    "query": {
-        "operator": "and",
-        "children": [
-            {
-                "attribute": <attribute>,
-                "operator": ">=",
-                "value": <value1>
-            }, 
-            {
-                "attribute": <attribute>,
-                "operator": "<=",
-                "value": <value2>
-            }
-        ]
-    }
+    "operator": "and",
+    "children": [
+        {
+            "attribute": <attribute>,
+            "operator": ">=",
+            "value": <value1>
+        }, 
+        {
+            "attribute": <attribute>,
+            "operator": "<=",
+            "value": <value2>
+        }
+    ]
 }
 ```
 
@@ -458,12 +450,9 @@ Given a new component called `MyComponent`:
 
 	```json
 	{
-	    "query": {
-	        "attribute": <attribute>,
-	        "operator": "is",
-	        "value": <value>
-	    }
-	}
+        "attribute": <attribute>,
+        "operator": "is",
+        "value": <value>
+    }
 	```
-
 
