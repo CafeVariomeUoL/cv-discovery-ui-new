@@ -34,6 +34,8 @@ RUN mkdir /var/sockets
 RUN mkdir /app/uploads
 
 COPY ./start.sh /app
+COPY ./docs /app/docs
+
 
 RUN chmod +x /app/start.sh
 
