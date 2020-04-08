@@ -54,7 +54,7 @@ postgresql://hello_fastapi:hello_fastapi@db/hello_fastapi_dev
 ```
 
 
-## Backend architecture
+# Backend architecture
 
 The backend is a very simple REST server written in Python, using FastAPI. The reason this framework was chose was because its apparently fast and supports OpenAPI "standards". This means that one can declare models of requests and responses (`backend/api/models.py`). The main use case is the definition of a `Query`:
 
@@ -287,8 +287,8 @@ We can of course also have complex objects inside the array:
         "blood_group": "AB"
     },
     "hospital_visits": [
-    	{"date": "2020-04-08T00:00:00.000Z", "doctor_id":20}, 
-    	{"date": "2020-01-26T00:00:00.000Z", "doctor_id":127}
+    	{"date": "2020-04-08T00:00:00.000Z", "doctor_id": 20}, 
+    	{"date": "2020-01-26T00:00:00.000Z", "doctor_id": 127}
     ]
 }
 ```
@@ -316,3 +316,154 @@ The corresponding API query is:
     }
 }
 ```
+
+
+# Frontend architecture
+
+The frontend is built using React and can be found in `frontend/src`. There are two main pages/views, the `/:id` and `/settings/:id`. They are defined in `frontend/src/modules/MainRouter.js`, where:
+
+-	`/:id` is routed to `frontend/src/pages/DiscoveryPage.js`
+-	`/settings/:id` is routed to `frontend/src/pages/SettingsPage.js`
+
+## Discovery page
+
+The discovery page is dynamically loaded by calling the `/api/loadSettings` endpoint, whcih returns a JSON object, encoding the view. This view is made up of components, found in `frontend/src/componets/`. The components are shown below, along with the kind of queries they generate:
+
+![Button group](screenshot/button_group.png)
+
+![Dropdown](screenshot/dropdown.png)
+
+![Text input](screenshot/text_input.png)
+
+
+```json
+{
+    "query": {
+        "attribute": <attribute>,
+        "operator": "is",
+        "value": <value>
+    }
+}
+```
+
+```json
+{
+    "query": {
+        "operator": "exists",
+        "from": <attribute1>,
+        "children": [
+            {
+                "attribute": <attribute2>,
+                "operator": "is",
+                "value": <value>
+            }
+        ]
+    }
+}
+```
+
+---
+
+![List](screenshot/list.png)
+
+```json
+{
+    "query": {
+        "operator": "and",
+        "children": [
+            {
+                "attribute": <attribute>,
+                "operator": "is",
+                "value": <value1>
+            }, 
+            {
+                "attribute": <attribute>,
+                "operator": "is",
+                "value": <value2>
+            }
+        ]
+    }
+}
+```
+
+---
+
+![Range](screenshot/range.png)
+
+![Range slider](screenshot/range_slider.png)
+
+```json
+{
+    "query": {
+        "operator": "and",
+        "children": [
+            {
+                "attribute": <attribute>,
+                "operator": ">=",
+                "value": <value1>
+            }, 
+            {
+                "attribute": <attribute>,
+                "operator": "<=",
+                "value": <value2>
+            }
+        ]
+    }
+}
+```
+
+
+
+
+## Settings page
+
+
+In the examples above, the `<attribute>` can be set in the settings page. Each of the components above has a settings box, where this, and other parameters can be set. For example, if we set the box attribute to `REF` in the example below:
+
+![Button group settings](screenshot/button_group_setting.png)
+
+then selecting the value `T`:
+
+![Button group T selected](screenshot/button_group_t.png)
+
+generates:
+
+~~~json
+{
+	"attribute": {"REF": "str"},
+	"operator": "is",
+	"value": "T"
+}
+~~~
+
+## Components
+
+The components shown above are just React components, which follow certain conventions. 
+
+Given a new component called `MyComponent`:
+
+-	The component must be placed inside `frontend/src/components`, following the naming convention of `MyComponentBuilder.js`
+-	The components setting class should be placed inside `frontend/src/components/settings`, following the naming convention of `MyComponentBuilderSettings.js`
+-	Components must be imported in `frontend/src/components/typesWOQueryTree.js` and the `typeMap` extended with:
+
+	~~~js
+	'MyComponentBuilder': { 
+    	type: MyComponentBuilder, 
+    	settings_type: MyComponentBuilderSettings,
+    	label: 'Label for my component'
+    },
+    ~~~
+
+- 	`MyComponentBuilder.js` has to call `this.props.setQuery` to pass back a subquery generated within the component back to the parent. There is a convenience method `mkAttrQuery` in `frontend/src/utils/utils.js`, where `mkAttrQuery(attribute, (v)=>v, 'is', value)` generates:
+
+	```json
+	{
+	    "query": {
+	        "attribute": <attribute>,
+	        "operator": "is",
+	        "value": <value>
+	    }
+	}
+	```
+
+
