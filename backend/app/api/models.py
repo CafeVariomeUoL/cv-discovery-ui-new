@@ -2,7 +2,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Json
 from enum import Enum
 from fastapi import File
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Any
 
 class AttributeMeta(BaseModel):
     attribute: dict
@@ -34,8 +34,6 @@ class BoolOp(str, Enum):
 
 class Quantifier(str, Enum):
     exists = 'exists'
-    forall = 'or'
-
 
 
 class BaseBoolOp(str, Enum):
@@ -55,7 +53,7 @@ class BaseQuery(BaseModel):
 
 
 class IsQuery(BaseModel):
-    attribute: Union[dict, str]
+    attribute: Any
 
 
 class GroupQuery(BaseModel):

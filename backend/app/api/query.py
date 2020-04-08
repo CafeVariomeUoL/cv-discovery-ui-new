@@ -36,7 +36,6 @@ def mkPathStm(stm, eav, getJSONobject = False):
 
 def optimiseQuery(q: Union[BaseQuery, GroupQuery]):
     if isinstance(q, BaseQuery) and q.operator == "is":
-        print(q.attribute, get_leaf(q.attribute))
         return IsQuery(attribute=map_(q.attribute, lambda x: cast(q.value, str_to_ty(get_leaf(q.attribute)))))
 
     # rewrite an `∃ x ∈ S. x = a` into `_ @> S({[x:a]})` optimised query
@@ -126,7 +125,7 @@ async def query(payload: Query):
     # print(payload.query)
     srcs = [eavs] + srcs
 
-    query = select([func.count()])
+    query = select([func.count(func.distinct(eavs.c.subject_id))])
     for s in srcs:
         query = query.select_from(s)
     
