@@ -335,6 +335,7 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
 
 <img src="screenshot/text_input.png" alt="Text input" style="width:100%; max-width:800px;" />
 
+##### Query:
 
 ```json
 {
@@ -362,6 +363,8 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
 
 <img src="screenshot/list.png" alt="List" style="width:100%; max-width:800px;" />
 
+##### Query:
+
 ```json
 {
     "operator": "and",
@@ -386,6 +389,8 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
 
 <img src="screenshot/range_slider.png" alt="Range slider" style="width:100%; max-width:800px;" />
 
+##### Query:
+
 ```json
 {
     "operator": "and",
@@ -403,7 +408,6 @@ The discovery page is dynamically loaded by calling the `/api/loadSettings` endp
     ]
 }
 ```
-
 
 
 

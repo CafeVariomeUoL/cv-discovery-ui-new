@@ -84,7 +84,6 @@ export default class VariantBuilderSettings extends React.Component {
             onChange={this.handleChange('assembly')} 
           />
           		  </GridColumn>
-
 		  </Grid>
 		  <div style={{paddingTop: '0.5em'}}>
 		  <Grid>

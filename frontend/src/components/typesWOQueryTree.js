@@ -26,7 +26,6 @@ export const typeMap = {
     	settings_type: EmptyBuilderSettings,
     	label: 'Boolean group'
     },
-    'VariantBuilder': { type: VariantBuilder },
     'BetweenBuilder': { 
     	type: BetweenBuilder,
     	settings_type: BetweenBuilderSettings,
