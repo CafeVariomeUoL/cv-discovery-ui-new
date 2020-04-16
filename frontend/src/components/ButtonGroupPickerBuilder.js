@@ -2,6 +2,8 @@ import React from 'react';
 import { Radio } from 'antd';
 import { Grid, GridColumn } from '@atlaskit/page';
 import { mkAttrQuery } from '../utils/utils';
+import { getAttributeValues } from '../utils/api'
+
 import './ButtonGroup.css'
 
 
@@ -18,35 +20,50 @@ export default class ButtonGroupPickerBuilder extends React.Component {
 		return mkAttrQuery(this.props.attribute, (v)=>v, "is", state.value)
 	}
 
+	// componentDidMount() {
+
+	// 	if(this.props.attribute)  getAttributeValues(this.props.attribute,
+	//       (result) => {
+	//         if(result) this.setState((oldState) => 
+	//           {return {...oldState, options: result}});
+	//       },
+	//       (error) => {
+	//         console.log(error)
+	//       }
+	//     )
+
+ //        this.props.setQuery(this.mkQuery(this.state));
+
+	// }
+
 	componentDidMount() {
-
-		fetch(
-	      process.env.REACT_APP_API_URL+"/discovery/getAttributeValues", {
-	        method:'POST',
-	        headers: {
-	          'Access-Control-Allow-Origin': '*',
-	          'Content-Type': 'application/json',
-	          'Accept': 'application/json',
-	          'X-Requested-With': 'XMLHttpRequest'
-	        },
-	        body: JSON.stringify({attribute: this.props.attribute})
-	      })
-	      .then(res => res.json())
-	      .then(
-	        (result) => {
-	          console.log(result);
-	           if(result) this.setState({options: result});
-	        },
-	        // Note: it's important to handle errors here
-	        // instead of a catch() block so that we don't swallow
-	        // exceptions from actual bugs in components.
-	        (error) => {
-	          console.log(error)
-	        })
-
-        this.props.setQuery(this.mkQuery(this.state));
-
+		this.loadProps(this.props, true)
 	}
+
+	componentWillReceiveProps(nextProps){
+		this.loadProps(nextProps)
+	}
+
+	loadProps(nextProps, force = false){
+		if((force && nextProps.attribute) || (nextProps.attribute && this.props.attribute !== nextProps.attribute)) {
+			getAttributeValues(nextProps.attribute,
+		        (result) => {
+		          if(result) this.setState((oldState) => 
+	          		{return {...oldState, options: result}});
+		        },
+		        // Note: it's important to handle errors here
+		        // instead of a catch() block so that we don't swallow
+		        // exceptions from actual bugs in components.
+		        (error) => {
+		          console.log(error)
+		        })
+
+	        nextProps.setQuery(this.mkQuery(this.state));
+	    }
+	}
+
+
+
 
 	handleChange = e =>  {
 		this.setState({value: e.target.value});
@@ -58,7 +75,7 @@ export default class ButtonGroupPickerBuilder extends React.Component {
 	render() {
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
-		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
+		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
 		  <Grid>
 		  	<GridColumn>
          	    <Radio.Group onChange={this.handleChange} defaultValue="" buttonStyle="solid">

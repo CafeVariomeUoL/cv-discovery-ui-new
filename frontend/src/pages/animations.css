@@ -1,0 +1,143 @@
+.discovery-grid > .react-grid-item.react-grid-placeholder{
+	background: green;
+}
+
+
+.blue-enter{
+  background: white;
+  border-radius: 3px;
+}
+
+.blue-enter-active {
+  background: rgb(222, 235, 255);
+  border-radius: 3px;
+  transition: background .2s ease-in;
+}
+
+.blue-enter-done {
+  background: rgb(222, 235, 255);
+  border-radius: 3px;
+}
+
+.blue-exit{
+	  border-radius: 3px;
+
+  background: rgb(222, 235, 255);
+}
+
+
+.blue-exit-active {
+  background: white;
+border-radius: 3px;
+  transition: background .2s ease-in;
+}
+
+
+
+.outline-enter{
+	outline-style: dashed;
+	outline-width: 1px;
+	outline-color: white;
+}
+
+.outline-enter-active{
+	outline-color: #0747A6;
+	transition: outline-color .2s ease-in;
+}
+
+.outline-enter-done {
+	outline-style: dashed;
+	outline-width: 1px;
+	outline-color: #0747A6;
+	height: 100%
+}
+
+.outline-exit{
+	outline-style: dashed;
+	outline-width: 1px;
+	outline-color: #0747A6;
+}
+
+.outline-exit-active{
+	outline-color: white;
+	transition: outline-color .2s ease-in;
+}
+
+
+
+
+.width-box-enter{
+	height: 0;
+	opacity: 0;
+}
+.width-box-enter-active{
+	height: 40px;
+	opacity: 0;
+	transition: height 0.2s ease-in, opacity 0.2s ease-in;
+
+}
+
+.width-box-enter-done{
+	height: 40px;
+}
+
+.width-box-exit{
+	height: 40px;
+}
+.width-box-exit-active{
+	height: 0;
+	opacity: 0;
+	transition: height 0.2s ease-in;
+}
+
+
+
+.add-menu-enter{
+	opacity: 0;
+}
+.add-menu-enter-active{
+	opacity: 1;
+	transition: opacity 0.2s ease-in;
+
+}
+
+.add-menu-enter-done{
+	opacity:1;
+}
+
+
+.add-menu-exit{
+	opacity: 1;
+}
+.add-menu-exit-active{
+	opacity: 0;
+	transition: opacity 0.2s ease-in;
+}
+
+
+
+
+.query-table-enter{
+	height: 0;
+	opacity: 0;
+}
+.query-table-enter-active{
+	height: 100%;
+	opacity: 1;
+	transition: height 0.2s ease-in, opacity 0.2s ease-in;
+}
+
+.query-table-enter-done{
+	opacity: 1;
+}
+
+
+.query-table-exit{
+	opacity: 1;
+	height: 100%;
+}
+.query-table-exit-active{
+	height: 0;
+	opacity:0;
+	transition: height 0.2s ease-in, opacity 0.2s ease-in;
+}

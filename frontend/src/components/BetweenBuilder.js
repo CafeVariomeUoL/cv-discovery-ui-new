@@ -34,7 +34,7 @@ export default class BetweenBuilder extends React.Component {
   render() {
     return (
       <div style={{marginBottom: '0.5em'}}>
-        <h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
+        <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
         <Grid>
           <GridColumn medium={2}>
             <h5 style={{ 

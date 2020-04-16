@@ -87,6 +87,13 @@ export default class QueryTreeSettings extends React.Component {
           <Select
             className="single-select"
           	classNamePrefix="react-select"
+          	menuPortalTarget={document.body}
+            styles={{
+                  menuPortal: base => ({
+                    ...base,
+                    zIndex: 9999,
+                  }),
+                }}
             options={this.state.trees}
             defaultValue={{label:this.state.data.tree, value:this.state.data.tree}}
             onChange={this.handleChange('tree')} 

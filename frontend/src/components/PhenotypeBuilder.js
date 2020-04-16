@@ -26,37 +26,44 @@ export default class PhenotypeBuilder extends React.Component {
 		// filter_str:'',
 	};
 
-
 	componentDidMount() {
+		this.loadProps(this.props, true)
+	}
 
-		getAttributeValuesLimitOffset(this.props.attribute, 500, 0,
-	        (result) => {
-	          console.log(result);
-	           if(result) {
-	           	const s = new Set();
-	           	this.setState({hpo_data: result, filtered_data: result, selectedRowKeys: s});
-	           	getAttributeValuesLimitOffset(this.props.attribute, null, 50,
-			        (result) => {
-			          console.log(result);
-			           if(result) this.setState((oldState, _) => 
-          				{return {...oldState, hpo_data: [...new Set([...oldState.hpo_data, ...result])] , filtered_data: [...new Set([...oldState.hpo_data, ...result])] }})
+	componentWillReceiveProps(nextProps){
+		this.loadProps(nextProps)
+	}
 
-			        },
-	
-			        (error) => {
-			          console.log(error)
-			        }
-			      )
-	           }
-	        },
+	loadProps(nextProps, force = false){
+		if((force && nextProps.attribute) || (nextProps.attribute && this.props.attribute !== nextProps.attribute)) {
+			getAttributeValuesLimitOffset(nextProps.attribute, 500, 0,
+		        (result) => {
+		          console.log(result);
+		           if(result) {
+		           	const s = new Set();
+		           	this.setState({hpo_data: result, filtered_data: result, selectedRowKeys: s});
+		           	getAttributeValuesLimitOffset(nextProps.attribute, null, 50,
+				        (result) => {
+				          console.log(result);
+				           if(result) this.setState((oldState, _) => 
+	          				{return {...oldState, hpo_data: [...new Set([...oldState.hpo_data, ...result])] , filtered_data: [...new Set([...oldState.hpo_data, ...result])] }})
 
-	        (error) => {
-	          console.log(error)
-	        }
-	    )
+				        },
+		
+				        (error) => {
+				          console.log(error)
+				        }
+				      )
+		           }
+		        },
 
-        this.props.setQuery(this.mkQuery(this.state));
+		        (error) => {
+		          console.log(error)
+		        }
+		    )
 
+	        nextProps.setQuery(this.mkQuery(this.state));
+	    }
 	}
 
 
@@ -120,7 +127,7 @@ export default class PhenotypeBuilder extends React.Component {
 		// console.log(filtered_data.length)
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
-		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
+		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
 		  <div style={{paddingBottom: '0.5em', paddingLeft:'42px'}}>
 		  <Textfield
 		      name="filter"

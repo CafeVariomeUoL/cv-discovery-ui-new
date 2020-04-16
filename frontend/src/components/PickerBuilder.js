@@ -28,21 +28,29 @@ export default class PickerBuilder extends React.Component {
 	}
 
 	componentDidMount() {
+		this.loadProps(this.props, true)
+	}
 
-		getAttributeValues(this.props.attribute,
-	        (result) => {
-	          // console.log(result);
-	           if(result) this.setState({options: result.map((e) => {return {key:e, label:e, value:e}})});
-	        },
-	        // Note: it's important to handle errors here
-	        // instead of a catch() block so that we don't swallow
-	        // exceptions from actual bugs in components.
-	        (error) => {
-	          console.log(error)
-	        })
+	componentWillReceiveProps(nextProps){
+		this.loadProps(nextProps)
+	}
 
-        this.props.setQuery(this.mkQuery(this.state));
+	loadProps(nextProps, force = false){
+		if((force && nextProps.attribute) || (nextProps.attribute && this.props.attribute !== nextProps.attribute)) {
+			getAttributeValues(nextProps.attribute,
+		        (result) => {
+		          console.log(result);
+		           if(result) this.setState({options: result.map((e) => {return {key:e, label:e, value:e}})});
+		        },
+		        // Note: it's important to handle errors here
+		        // instead of a catch() block so that we don't swallow
+		        // exceptions from actual bugs in components.
+		        (error) => {
+		          console.log(error)
+		        })
 
+	        nextProps.setQuery(this.mkQuery(this.state));
+	    }
 	}
 
 	handleChange = prop_name => e =>  {
@@ -57,12 +65,19 @@ export default class PickerBuilder extends React.Component {
 	render() {
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
-		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
+		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
 		  <Grid>
 		  	<GridColumn medium={2}>
           <Select
             className="single-select"
           	classNamePrefix="react-select"
+          	menuPortalTarget={document.body}
+            styles={{
+                  menuPortal: base => ({
+                    ...base,
+                    zIndex: 9999,
+                  }),
+                }}
             options={opts}
             defaultValue={opts[0]}
             onChange={this.handleChange('op')} 
@@ -73,6 +88,13 @@ export default class PickerBuilder extends React.Component {
 		      <Select
 		      className="single-select"
 		      classNamePrefix="react-select"
+		      menuPortalTarget={document.body}
+	            styles={{
+	                  menuPortal: base => ({
+	                    ...base,
+	                    zIndex: 9999,
+	                  }),
+	                }}
 		      options={this.state.options}
 		      onChange={this.handleChange('value')}
 		  	/>

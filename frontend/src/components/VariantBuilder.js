@@ -22,7 +22,7 @@ export default class ValueBuilder extends React.Component {
 
   componentDidMount() {
 
-    getAttributeValues(this.props.chr,
+    if(this.props.chr) getAttributeValues(this.props.chr,
       (result) => {
         console.log("chr: ", result);
          if(result) this.setState((oldState, _) => 
@@ -33,7 +33,7 @@ export default class ValueBuilder extends React.Component {
       }
     )
 
-    getAttributeValues(this.props.ref_,
+    if(this.props.ref_)  getAttributeValues(this.props.ref_,
       (result) => {
         console.log("ref: ", result);
         if(result) this.setState((oldState, _) => 
@@ -44,7 +44,7 @@ export default class ValueBuilder extends React.Component {
       }
     )
 
-    getAttributeValues(this.props.alt,
+    if(this.props.alt) getAttributeValues(this.props.alt,
       (result) => {
         console.log("alt: ", result);
          if(result) this.setState((oldState, _) => 

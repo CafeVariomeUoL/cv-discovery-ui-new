@@ -2,10 +2,13 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Router, Route, Switch } from 'react-router';
 import { createBrowserHistory } from 'history';
-import App from './App';
-import DiscoveryPage from '../pages/DiscoveryPage';
-import SettingsPage from '../pages/SettingsPage';
 
+import DiscoveryPage from '../pages/DiscoveryPage';
+import DiscoveryPageGrid from '../pages/DiscoveryPageGrid';
+import SettingsPage from '../pages/SettingsPage';
+import '@atlaskit/css-reset';
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
 
 export const history = createBrowserHistory({
     basename: process.env.PUBLIC_URL
@@ -28,13 +31,6 @@ export default class MainRouter extends Component {
     };
   }
 
-  appWithPersistentNav = () => (props) => (
-    <App
-      onNavResize={this.onNavResize}
-      {...props}
-    />
-  )
-
   onNavResize = (navOpenState) => {
     this.setState({
       navOpenState,
@@ -45,8 +41,7 @@ export default class MainRouter extends Component {
     return (
       <Router history={history}>
         <Switch>
-          <Route path="/settings/:id" component={SettingsPage} />
-          <Route path="/:id" component={DiscoveryPage} />
+          <Route path="/:id" component={DiscoveryPageGrid} />
         </Switch>
       </Router>
     );

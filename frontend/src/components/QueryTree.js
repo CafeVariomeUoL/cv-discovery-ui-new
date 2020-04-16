@@ -302,7 +302,7 @@ processQuery = (state, id, query_data) => {
           padding: '10px',
           marginTop: '5px',
         }}>
-        {this.props.label && <h2 style={{marginBottom: '0.5em'}}>{this.props.label}</h2>}
+        {this.props.label && <h2 style={{marginBottom: '0.5em'}}>{this.props.label?this.props.label:'\u00A0'}</h2>}
         <Tree
           tree={this.state.tree}
           renderItem={this.renderItem}

@@ -5,9 +5,7 @@ import Textfield from '@atlaskit/textfield';
 import { mkLabel, getType } from '../../utils/utils'
 import ToggleStateless from '@atlaskit/toggle';
 
-
-
-
+import { getAttributes } from '../../utils/api'
 
 
 
@@ -24,35 +22,19 @@ export default class PickerBuilderSettings extends React.Component {
 
 
 	componentDidMount() {
-	    fetch(
-	      process.env.REACT_APP_API_URL+"/discovery/getAttributes", {
-	        headers: {
-	          "Access-Control-Allow-Origin": "*",
-	          'Content-Type': 'application/json',
-	          'Accept': 'application/json',
-	          'X-Requested-With': 'XMLHttpRequest'
-	        }
-	      })
-	      .then(res => res.json())
-	      .then(
+		getAttributes(
 	        (result) => {
-	          console.log(result);
-	          
-
 	          this.setState({
 	            attributes: result.map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})
 	          });
 	        },
-	        // Note: it's important to handle errors here
-	        // instead of a catch() block so that we don't swallow
-	        // exceptions from actual bugs in components.
 	        (error) => {
 	          this.setState({
 	            error: error
 	          });
 	        }
-	      )
-	  }
+	    )
+	}
 
 
 	handleChange = prop_name => e =>  {
@@ -87,6 +69,13 @@ export default class PickerBuilderSettings extends React.Component {
             className="single-select"
           	classNamePrefix="react-select"
             options={this.state.attributes}
+            menuPortalTarget={document.body}
+            styles={{
+                  menuPortal: base => ({
+                    ...base,
+                    zIndex: 9999,
+                  }),
+                }}
             defaultValue={{label:mkLabel(this.state.data.attribute), value:this.state.data.attribute}}
             onChange={this.handleChange('attribute')} 
           />

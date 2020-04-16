@@ -67,6 +67,13 @@ export default class PhenotypeBuilderSettings extends React.Component {
           <Select
             className="single-select"
           	classNamePrefix="react-select"
+          	menuPortalTarget={document.body}
+            styles={{
+                  menuPortal: base => ({
+                    ...base,
+                    zIndex: 9999,
+                  }),
+                }}
             options={this.state.attributes}
             defaultValue={{label:mkLabel(this.state.data.attribute), value:this.state.data.attribute}}
             onChange={this.handleChange('attribute')} 

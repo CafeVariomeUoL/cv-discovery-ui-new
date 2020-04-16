@@ -12,7 +12,7 @@ export default class EmptyBuilder extends React.Component {
 	render() {
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
-		  <h2>{this.props.label}</h2>
+		  <h2>{this.props.label?this.props.label:'<Label>'}</h2>
 		  </div>
 		);
 	}
