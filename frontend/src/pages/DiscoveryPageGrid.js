@@ -116,7 +116,7 @@ export default class DiscoveryPageGrid extends Component {
       .then(res => res.json())
       .then(
         (result) => {
-          // console.log("Tree: ");
+          console.log(result);
           if(result){
             const parsed = JSON.parse(result);
             // console.log(JSON.parse(result));
@@ -134,6 +134,11 @@ export default class DiscoveryPageGrid extends Component {
               components: parsed.components,
               layouts: parsed.layouts,
               counter: maxVal+1
+            });
+          } else {
+            this.setState({
+              isLoaded: true,
+              info: `The discovery page '${this.props.match.params.id}' does not exist yet. To create it, press edit...`
             });
           }
         },
@@ -230,9 +235,10 @@ export default class DiscoveryPageGrid extends Component {
   
 
   getOffset = () => {
-    const { isLoaded, error } = this.state;
+    const { isLoaded, error, info } = this.state;
     let offset = 0;
     if (error) offset += 40;
+    if (info) offset += 40;
     if (!isLoaded) offset += 40;
     return offset;
   }
@@ -332,7 +338,7 @@ export default class DiscoveryPageGrid extends Component {
 
   render() {
 
-    const { error, debug, isLoaded, layouts, components, edit, maxWidthEdit, settingsModalKey } = this.state;
+    const { error, info, debug, isLoaded, layouts, components, edit, maxWidthEdit, settingsModalKey } = this.state;
 
     const items = Object.keys(components).map((k) => { 
         return (
@@ -367,7 +373,7 @@ export default class DiscoveryPageGrid extends Component {
 
     return (
       <Page bannerHeight={this.getOffset()}
-        isBannerOpen={!isLoaded || error}
+        isBannerOpen={!isLoaded || error || info}
         banner={
         <Fragment>
         {!isLoaded ?
@@ -383,6 +389,14 @@ export default class DiscoveryPageGrid extends Component {
             closable
             onClose={() => this.setState({error: null})}
             type="error"
+          />) : null}
+        {info ?
+          (<Alert
+            message={info}
+            banner
+            closable
+            onClose={() => this.setState({info: null})}
+            type="info"
           />) : null}
         </Fragment>
       }>      
