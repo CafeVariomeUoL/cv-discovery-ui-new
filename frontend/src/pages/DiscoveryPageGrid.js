@@ -2,6 +2,8 @@ import React, { Component, Fragment } from 'react';
 
 import Spinner from '@atlaskit/spinner';
 import ModalDialog, { ModalFooter, ModalTransition } from '@atlaskit/modal-dialog';
+import ToggleStateless from '@atlaskit/toggle';
+
 import { Alert,Radio } from 'antd';
 
 import ContentWrapper from '../components/ContentWrapper';
@@ -60,7 +62,7 @@ export default class DiscoveryPageGrid extends Component {
     queries: {},
     results: [],
     isLoaded: false,
-    debug: true,
+    debug: false,
     edit: false,
     // error:'aadfbdfbmdfhkdfzjkhdfkfkjfkjfakjhfdkhjfdkjhfadkfkfkfkhjdfbmndfkfdkhdfkhjdfklhdeklhjsdLKwdlkdewlkwdkldkaa'
   };
@@ -409,6 +411,13 @@ export default class DiscoveryPageGrid extends Component {
                 onClick={this.toggleEdit}>
                 {edit?'Save':'Edit'}
               </Button>
+            </span>
+            
+            <span style={{paddingLeft:'15px', marginTop:'16px'}}>
+              <ToggleStateless isDefaultChecked={this.state.debug} onChange={() => this.setState({debug: !this.state.debug})}/>
+            </span>
+            <span style={{marginTop:'19px', fontSize: '14px'}}>
+              Debug mode
             </span>
           </div>
           <section style={{marginBottom: '20px'}}>
