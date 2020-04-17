@@ -53,9 +53,6 @@ export default class BetweenBuilderSettings extends React.Component {
 	
 	render() {
 		return (
-			<div>
-			<h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
-	  
 		  <Grid>
 		  <GridColumn medium={5}>
 		  <h5 style={{paddingBottom: '0.5em'}}>Attribute:</h5>
@@ -83,7 +80,6 @@ export default class BetweenBuilderSettings extends React.Component {
 		    />
 		  </GridColumn>
 		  </Grid>
-		  </div>
 		);
 	}
 }

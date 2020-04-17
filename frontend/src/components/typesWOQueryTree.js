@@ -53,7 +53,7 @@ export const typeMap = {
     	type: PhenotypeBuilder, 
     	settings_type: PhenotypeBuilderSettings,
     	label: 'Phenotype input' ,
-        minHeight: 9,
+        minHeight: 10,
     },
     'VariantBuilder': {
         type: VariantBuilder,

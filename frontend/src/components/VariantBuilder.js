@@ -92,12 +92,19 @@ export default class ValueBuilder extends React.Component {
     return(
       <div style={{marginBottom: '0.5em'}}>
         <h3 style={{paddingBottom: '0.5em'}}>Variant</h3>
-        <Grid>
-          <GridColumn medium={2}>
+        <div style={{display:'flex', flexWrap: 'wrap'}}>
+          <div style={{minWidth:'100px', marginRight:'5px', marginBottom: '5px'}}>
             <Select
               style={{maxWidth:'30%'}}
               className="single-select"
               classNamePrefix="react-select"
+              menuPortalTarget={document.body}
+                styles={{
+                      menuPortal: base => ({
+                        ...base,
+                        zIndex: 9999,
+                      }),
+                    }}
               placeholder="Genome"
               options={[
                 { label: 'GRCh37', value: 'GRCh37' },
@@ -105,43 +112,64 @@ export default class ValueBuilder extends React.Component {
               ]}
               onChange={this.handleChange('assembly')} 
             />
-          </GridColumn>
-          <GridColumn medium={2}>
+          </div>
+          <div style={{minWidth:'125px', marginRight:'5px', marginBottom: '5px'}}>
             <Select
               placeholder="Select input"
+              menuPortalTarget={document.body}
+                styles={{
+                      menuPortal: base => ({
+                        ...base,
+                        zIndex: 9999,
+                      }),
+                    }}
               options={this.state.chr_opts}
               onChange={this.handleChange('chr')} 
             />
-          </GridColumn>
-          <GridColumn medium={2}>
+          </div>
+          <div style={{minWidth:'80px', marginRight:'5px', marginBottom: '5px'}}>
           <Textfield
                 placeholder="Chr start"
                 onChange={this.handleChange('chr_start')}
               />
-          </GridColumn>
-          <GridColumn medium={2}>
+          </div>
+          <div style={{minWidth:'90px', marginRight:'5px', marginBottom: '5px'}}>
           <Textfield
                 placeholder="Chr end"
                 onChange={this.handleChange('chr_end')}
               />
-          </GridColumn>
-          <GridColumn medium={2}>
+          </div>
+          <div style={{minWidth:'70px', marginRight:'5px', marginBottom: '5px'}}>
             <Select
               placeholder="REF"
+              menuPortalTarget={document.body}
+                styles={{
+                      menuPortal: base => ({
+                        ...base,
+                        zIndex: 9999,
+                      }),
+                    }}
               options={this.state.ref_opts}
               onChange={this.handleChange('ref')}
             />
-          </GridColumn>
-          <GridColumn>
+          </div>
+          <div style={{minWidth:'70px', marginRight:'5px', marginBottom: '5px'}}>
             <Select
               className="single-select"
               classNamePrefix="react-select"
+              menuPortalTarget={document.body}
+                styles={{
+                      menuPortal: base => ({
+                        ...base,
+                        zIndex: 9999,
+                      }),
+                    }}
               placeholder="ALT"
               options={this.state.alt_opts}
               onChange={this.handleChange('alt')} 
             />
-          </GridColumn>
-        </Grid>
+          </div>
+        </div>
       </div>
     );
   }

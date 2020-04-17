@@ -62,9 +62,7 @@ export default class VariantBuilderSettings extends React.Component {
 	
 	render() {
 		return (
-			<div>
-			<h3 style={{paddingBottom: '0.5em'}}>{this.props.label}</h3>
-	  
+			<div>	  
 		  <Grid>
 		  <GridColumn>
 		  	<h5 style={{paddingBottom: '0.5em'}}>Label:</h5>

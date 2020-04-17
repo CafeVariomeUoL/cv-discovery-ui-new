@@ -46,7 +46,7 @@ const columns = [{
 }];
 
 
-
+const breakpoints = {lg: 720, md: 600, sm: 480, xs: 360}
 
 
 export default class DiscoveryPageGrid extends Component {
@@ -57,7 +57,7 @@ export default class DiscoveryPageGrid extends Component {
   state = {
     counter:0,
     settingsModalKey:null,
-    layouts: {lg:[], md:[], sm:[]},
+    layouts: {lg:[], md:[], sm:[], xs:[]},
     components: {},
     queries: {},
     results: [],
@@ -163,7 +163,7 @@ export default class DiscoveryPageGrid extends Component {
 
   renderBuilderFromComponent = (key, item) => {
     const TypeTag = typeMap[item.type].settings_type
-    return <TypeTag setData={this.storeData(`${key}`)} data={item.data} label={typeMap[item.type].label} settings_id={this.props.match.params.id}/>
+    return <TypeTag setData={this.storeData(`${key}`)} data={item.data} settings_id={this.props.match.params.id}/>
   }
 
 
@@ -294,7 +294,7 @@ export default class DiscoveryPageGrid extends Component {
     for (var i = 0; i < Object.keys(this.state.layouts).length; i++) {
       const layout_key = Object.keys(this.state.layouts)[i];
       console.log(layout_key);
-      newLayouts[layout_key] = [...oldState.layouts[layout_key], {i:`${key}`, x:0, y:0, w:4, h:minHeight, minH: minHeight, static:false}]
+      newLayouts[layout_key] = [...oldState.layouts[layout_key], {i:`${key}`, x:0, y:0, w:6, h:minHeight, minH: minHeight, static:false}]
     }
 
     return {components: newComponents, layouts: newLayouts, counter: key+1}
@@ -303,8 +303,9 @@ export default class DiscoveryPageGrid extends Component {
   maxWidthEditChange = (e) => {
     var w = null;
     switch(e.target.value){
-      case 'md': w = 600; break;
-      case 'sm': w = 400; break;
+      case 'md': w = breakpoints.md+1; break;
+      case 'sm': w = breakpoints.sm+1; break;
+      case 'xs': w = breakpoints.xs+1; break;
     }
     this.setState({maxWidthEdit: w}, this.gridRef.current.onWindowResize);
   }
@@ -351,14 +352,14 @@ export default class DiscoveryPageGrid extends Component {
             timeout={300}
             classNames="blue"
           >
-            <div style={{...(edit?{ background: 'rgb(222, 235, 255)'}:{}), padding:'5px'}}>
+            <div style={{...(edit?{ background: 'rgb(222, 235, 255)'}:{}), height:'100%'}}>
               <CSSTransition
                 in={edit}
                 timeout={300}
                 classNames="add-menu"
                 unmountOnExit
               >
-                <div style={{position:'absolute', right:5, zIndex:5}}>
+                <div style={{position:'absolute', right:5, top:5, zIndex:5}}>
                   <Button appearance={'subtle'} spacing="none" onClick={this.openSettings(k)}>
                     <EditorSettingsIcon/>
                   </Button>
@@ -367,8 +368,9 @@ export default class DiscoveryPageGrid extends Component {
                   </Button>
                 </div>
               </CSSTransition>
-
-              {this.renderFromComponent(k, components[k])}
+              <div style={{padding:'5px'}}>
+                {this.renderFromComponent(k, components[k])}
+              </div>
             </div>
           </CSSTransition>
           </div>)
@@ -439,6 +441,7 @@ export default class DiscoveryPageGrid extends Component {
                 <Radio.Button value="lg">Large</Radio.Button>
                 <Radio.Button value="md">Medium</Radio.Button>
                 <Radio.Button value="sm">Small</Radio.Button>
+                <Radio.Button value="xs">Extra Small</Radio.Button>
               </Radio.Group>
             </div>
         </CSSTransition>
@@ -453,8 +456,8 @@ export default class DiscoveryPageGrid extends Component {
               ...(maxWidthEdit?{maxWidth:`${maxWidthEdit}px`} :{}), 
               padding:'10px', marginBottom:'30px', marginLeft: 'auto', marginRight: 'auto'}}>
             <ResponsiveGridLayout className="discovery-grid" 
-              breakpoints={{lg: 600, md: 400, sm: 300}}
-              cols={{lg: 4, md: 3, sm: 1}}
+              breakpoints={breakpoints}
+              cols={{lg: 6, md: 4, sm: 1, xs: 1}}
               layouts={layouts}
               rowHeight={40}
               ref={this.gridRef}
@@ -525,8 +528,9 @@ export default class DiscoveryPageGrid extends Component {
          <ModalTransition>
           {settingsModalKey && (
             <ModalDialog
-              heading="Settings"
-              onClose={() =>{ console.log("aaa"); this.closeSettings() } }
+              heading={`Settings - ${typeMap[components[settingsModalKey].type].label}`}
+              width="large"
+              onClose={() =>{ this.closeSettings() } }
               components={{
                 Container: ({ children, className }: ContainerProps) => (
                   <div className={className}>

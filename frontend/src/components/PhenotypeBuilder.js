@@ -99,14 +99,14 @@ export default class PhenotypeBuilder extends React.Component {
 	    return (
 	      <div key={key} className="listItem" style={{...style, display:'flex', alignItems: 'center'}} onClick={this.toggleTag(this.state.filtered_data[index])}>
 
-		      <div style={{paddingTop:'2px', paddingLeft:'10px', paddingRight:'8px'}}>
+		      <div style={{paddingTop:'2px', paddingLeft:'5px', paddingRight:'1px'}}>
 		        <Checkbox
 		          isChecked={this.state.selectedRowKeys.has(this.state.filtered_data[index])}
 		          onChange={this.toggleTag(this.state.filtered_data[index])}
 		          name="checkbox-basic"
 		        /></div>
 	        
-		        <div >{this.state.filtered_data[index]}</div>
+		        <span>{this.state.filtered_data[index]}</span>
 
 	      </div>
 	    );
@@ -128,7 +128,7 @@ export default class PhenotypeBuilder extends React.Component {
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
 		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
-		  <div style={{paddingBottom: '0.5em', paddingLeft:'42px'}}>
+		  <div style={{paddingBottom: '0.5em', paddingLeft:'33px'}}>
 		  <Textfield
 		      name="filter"
 		      placeholder="Filter..."
@@ -140,20 +140,29 @@ export default class PhenotypeBuilder extends React.Component {
 		  	  ref={ref => this.list = ref}
 	          rowCount={filtered_data.length}
 	          style={{outline:0}}
-	          height={280}
+	          height={240}
 	          width={width}
-	          rowHeight={40}
+	          rowHeight={30}
 	          rowRenderer={this.rowRenderer}
 	          overscanRowCount={3}
 	        />}
 	     </AutoSizer>
-	     <div style={{marginTop: '1.5em'}}><h5 style={{paddingBottom: '0.5em'}}>Selected:</h5>
-
-	     {[...selectedRowKeys].map((i) => {return (<Tooltip key={i} placement="top" title={i}><Tag
-          closable
-          onClose={this.toggleTag(i)}
-        >{this.trimOrPad(i)}</Tag></Tooltip>)})}
+	     <div style={{marginTop: '1em', width:'100%'}}><h5 style={{paddingBottom: '0.5em'}}>Selected:</h5>
+	     	<div style={{height:'100px', overflow:'scroll'}}>
+		     {[...selectedRowKeys].map((i) => {return (<Tooltip key={i} placement="top" title={i}><Tag
+	          closable
+	          onClose={this.toggleTag(i)}
+	          // style={{}}
+	        ><span style={{...(this.props.tag_length == -1 ? {} : {width: `${7.2*this.props.tag_length}px`}), 
+	        	fontFamily: 'monospace', 
+	        	whiteSpace: 'nowrap',
+	        	overflow: 'hidden',
+	        	display: 'inline-block',
+	        	float: 'left',
+	        	paddingTop: '1px',
+	        	textOverflow:'ellipsis'}}>{i}</span></Tag></Tooltip>)})}
 	        </div>
+	      </div>
 		
 		  </div>
 		);
