@@ -60,24 +60,35 @@ export default class ValueBuilder extends React.Component {
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
 		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
-		  <Grid>
-		  	<GridColumn medium={2}>
-          <Select
-            className="single-select"
-          	classNamePrefix="react-select"
-            options={this.operator_opts}
-            defaultValue={this.operator_opts[0]}
-            onChange={this.handleChange('op')} 
-            // value={opts[0]}
-          />
-		    </GridColumn>
-		    <GridColumn>
-		      <Textfield
-		      name="value-low"
-		      onChange={this.handleChange('value')} 
-		    />
-		    </GridColumn>
-		  </Grid>
+		  <div style={{display:'flex'}}>
+			  	<div style={{minWidth:'90px', marginRight:'5px'}}>
+		           <Select
+		            className="single-select"
+		          	classNamePrefix="react-select"
+		          	menuPortalTarget={document.body}
+		            styles={{
+		                  menuPortal: base => ({
+		                    ...base,
+		                    zIndex: 9999,
+		                  }),
+		                }}
+		            options={this.operator_opts}
+		            defaultValue={this.operator_opts[0]}
+		            onChange={this.handleChange('op')} 
+		            // value={opts[0]}
+		          />
+				   </div> 
+				   <div style={{flexGrow: 4}}>
+				      <Textfield
+					      name="value-low"
+					      onChange={this.handleChange('value')} 
+					    />
+			  	</div>
+
+			  </div>
+
+
+
 		  </div>
 		);
 	}

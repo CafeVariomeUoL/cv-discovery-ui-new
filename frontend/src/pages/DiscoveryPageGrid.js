@@ -284,8 +284,9 @@ export default class DiscoveryPageGrid extends Component {
   }
 
 
-  addItem = (type, minHeight) => this.setState((oldState) => {
+  addItem = (type) => this.setState((oldState) => {
     const key = oldState.counter;
+    const minHeight = typeMap[type].minHeight?typeMap[type].minHeight:2;
 
     const newComponents = {...oldState.components, [`${key}`]: {type: type}};
     const newLayouts = {};
@@ -433,7 +434,7 @@ export default class DiscoveryPageGrid extends Component {
             classNames="width-box"
             unmountOnExit
           >
-            <div style={{padding: '0px'}}>Size:&nbsp;
+            <div style={{padding: '0px', display:'flex', justifyContent: 'center'}}>
               <Radio.Group onChange={this.maxWidthEditChange} defaultValue="lg">
                 <Radio.Button value="lg">Large</Radio.Button>
                 <Radio.Button value="md">Medium</Radio.Button>
@@ -450,7 +451,7 @@ export default class DiscoveryPageGrid extends Component {
           >
             <div style={{
               ...(maxWidthEdit?{maxWidth:`${maxWidthEdit}px`} :{}), 
-              padding:'10px', marginBottom:'30px'}}>
+              padding:'10px', marginBottom:'30px', marginLeft: 'auto', marginRight: 'auto'}}>
             <ResponsiveGridLayout className="discovery-grid" 
               breakpoints={{lg: 600, md: 400, sm: 300}}
               cols={{lg: 4, md: 3, sm: 1}}
@@ -506,7 +507,7 @@ export default class DiscoveryPageGrid extends Component {
             <h4 style={{paddingBottom:'10px'}}>Add a query builder:</h4>
             <Select
               options={queryBuilders}
-              onChange={(k) => this.addItem(k.value, 2)}
+              onChange={(k) => this.addItem(k.value)}
               placeholder="Select a box to add" />
 
             {debug && 
