@@ -9,7 +9,7 @@ import ToggleStateless from '@atlaskit/toggle';
 export default class EmptyBuilderSettings extends React.Component {
 
 	state = this.props.data ? this.props.data : {
-		no_hrule: false,
+		hrule: false,
 		label: '',
 		canHaveChildren: true
 	}
@@ -21,7 +21,7 @@ export default class EmptyBuilderSettings extends React.Component {
 
 	handleChange = prop_name => e =>  {
 		const newState = {...this.state};
-		if (prop_name === 'no_hrule'){
+		if (prop_name === 'hrule'){
 			newState[prop_name] = !newState[prop_name];
 		}
 		else {
@@ -47,9 +47,9 @@ export default class EmptyBuilderSettings extends React.Component {
 		    />
 		  </GridColumn>
 		  <GridColumn>
-		  <h5 style={{paddingBottom: '0.5em'}}>Horizontal line:</h5>
+		  <h5 style={{paddingBottom: '0.5em'}}>Horizontal line under label:</h5>
 		  	<div style={{boxSizing: 'content-box'}}>
-		  	<ToggleStateless size="large" isDefaultChecked={!this.state.no_hrule} onChange={this.handleChange('no_hrule')}/>
+		  	<ToggleStateless size="large" isDefaultChecked={this.state.hrule} onChange={this.handleChange('hrule')}/>
 		  	</div>
 		    </GridColumn>
 		  </Grid>
