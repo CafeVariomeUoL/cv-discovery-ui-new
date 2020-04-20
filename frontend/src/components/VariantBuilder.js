@@ -5,8 +5,11 @@ import Textfield from '@atlaskit/textfield';
 import { getAttributeValues } from '../utils/api'
 import { mkAttrQuery } from '../utils/utils';
 
+// import ReactResizeDetector from 'react-resize-detector';
 
 export default class ValueBuilder extends React.Component {
+
+
   state = {
     genome: '',
     chr: '',
@@ -90,7 +93,8 @@ export default class ValueBuilder extends React.Component {
   render() {  
 
     return(
-      <div style={{marginBottom: '0.5em'}}>
+      // <ReactResizeDetector handleHeight onResize={(width, height) => this.props.onHeightChange(height)}>
+      <div>
         <h3 style={{paddingBottom: '0.5em'}}>Variant</h3>
         <div style={{display:'flex', flexWrap: 'wrap'}}>
           <div style={{minWidth:'100px', marginRight:'5px', marginBottom: '5px'}}>
@@ -171,6 +175,7 @@ export default class ValueBuilder extends React.Component {
           </div>
         </div>
       </div>
+      // </ReactResizeDetector>
     );
   }
 }

@@ -38,13 +38,13 @@ export default class PhenotypeBuilder extends React.Component {
 		if((force && nextProps.attribute) || (nextProps.attribute && this.props.attribute !== nextProps.attribute)) {
 			getAttributeValuesLimitOffset(nextProps.attribute, 500, 0,
 		        (result) => {
-		          console.log(result);
+		          // console.log(result);
 		           if(result) {
 		           	const s = new Set();
 		           	this.setState({hpo_data: result, filtered_data: result, selectedRowKeys: s});
 		           	getAttributeValuesLimitOffset(nextProps.attribute, null, 50,
 				        (result) => {
-				          console.log(result);
+				          // console.log(result);
 				           if(result) this.setState((oldState, _) => 
 	          				{return {...oldState, hpo_data: [...new Set([...oldState.hpo_data, ...result])] , filtered_data: [...new Set([...oldState.hpo_data, ...result])] }})
 

@@ -29,8 +29,8 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import Collapsible from 'react-collapsible';
 
 import { CSSTransition } from 'react-transition-group';
-import'./animations.css'
-
+import './animations.css'
+import './DiscoveryPageGrid.css'
 
 const queryBuilders = Object.keys(typeMap).filter(e => 'settings_type' in typeMap[e]).map(e => {return {value:e, label: typeMap[e].label}})
 
@@ -46,8 +46,47 @@ const columns = [{
 }];
 
 
-const breakpoints = {lg: 720, md: 600, sm: 480, xs: 360}
+const grid_settings = {
+  lg: {width:960, cols:8, label:'Large'}, 
+  md: {width:720, cols:6, label:'Medium'}, 
+  sm: {width:600, cols:4, label:'Small'}, 
+  xs: {width:480, cols:1, label:'Extra Small'}, 
+  xxs: {width:360, cols:1, label:'Tiny'}};
 
+const rowHeight = 15;
+
+const cleanup = (layout, dynamicNodes) => {
+  console.log("inputs:", layout, dynamicNodes)
+  var layoutMap = {}
+  for (var i = 0; i < layout.length; i++) {
+    layoutMap[layout[i].i] = layout[i];
+  }
+  console.log(layoutMap)
+
+  // sort the dynamic nodes by height
+  dynamicNodes.sort((a, b) => layoutMap[a].y - layoutMap[b].y)
+  console.log("dynNodes", dynamicNodes)
+
+  for (var i = 0; i < dynamicNodes.length; i++) {
+    const n = dynamicNodes[i];
+    const nodesBelowN = layout.filter((e) => e.i != n && e.y >= layoutMap[n].y);
+    nodesBelowN.sort((a, b) => a.y - b.y)
+    console.log("nodes below", layoutMap[n], nodesBelowN)
+    if(nodesBelowN.length > 0){
+      const delta = (layoutMap[n].y+layoutMap[n].h)-nodesBelowN[0].y;
+      console.log("delta:", delta);
+      if(delta !== 0){
+        for (var j = 0; j < layout.length; j++) {
+          if(layout[j].i != n && layout[j].y >= layoutMap[n].y) layout[j].y += delta;
+        }
+      }
+    }
+
+  }
+
+  console.log("newLayout:", layout)
+  return layout
+}
 
 export default class DiscoveryPageGrid extends Component {
   gridRef = React.createRef();
@@ -57,8 +96,11 @@ export default class DiscoveryPageGrid extends Component {
   state = {
     counter:0,
     settingsModalKey:null,
-    layouts: {lg:[], md:[], sm:[], xs:[]},
+    layouts: {lg:[], md:[], sm:[], xs:[], xxs: []},
+    currentBreakpoint: 'lg',
     components: {},
+    componentHeights:{},
+    componentHeightsChanged:false,
     queries: {},
     results: [],
     isLoaded: false,
@@ -158,7 +200,10 @@ export default class DiscoveryPageGrid extends Component {
 
   renderFromComponent = (key, item) => {
     const TypeTag = typeMap[item.type].type
-    return <TypeTag setQuery={this.storeQuery(`${key}`)} ref={(elem) => this.componentRefs[key] = elem} {...item.data}/>
+    return <TypeTag 
+      setQuery={this.storeQuery(`${key}`)} 
+      // onHeightChange={this.componentHeightChanged(`${key}`)} 
+      {...item.data}/>
   }
 
   renderBuilderFromComponent = (key, item) => {
@@ -173,6 +218,13 @@ export default class DiscoveryPageGrid extends Component {
         queries: {... prevState.queries, [id]: query_data},
         // query: collectQueries(prevState.tree, 'root', {... prevState.queries, [id]: query_data})
       }));
+    }
+  }
+
+  componentHeightChanged = (id) => {
+    return (height) => {
+      if(this.state.componentHeights[id] !== height)
+        this.setState((oldState)=>{ return {componentHeightsChanged:true, componentHeights: {...oldState.componentHeights, [id]: height}}})
     }
   }
 
@@ -249,6 +301,50 @@ export default class DiscoveryPageGrid extends Component {
     this.setState({layouts: layouts});
   }
 
+  // onWidthChange = (containerWidth: number, margin: [number, number], cols: number, containerPadding: [number, number]) => {
+  //   // console.log(this.state.currentBreakpoint, containerWidth, this.state.componentHeights);
+  //   // if(this.state.componentHeightsChanged){
+  //   // console.log(this.state.currentBreakpoint, containerWidth, this.state.componentHeights);
+  //   if(!this.state.edit) this.setState((oldState) => {
+
+  //     const newLayout = oldState.layouts[oldState.currentBreakpoint].map((e) => {
+  //       if(oldState.componentHeights[e.i]) console.log(e.i, Math.round(oldState.componentHeights[e.i]/(rowHeight+10)))
+  //       return {...e, moved:true, h: this.state.componentHeights[e.i]?Math.round(oldState.componentHeights[e.i]/(rowHeight+10)) : e.h }
+  //     })
+
+
+  //     return {
+  //       componentHeightsChanged: false, 
+  //       layouts: {
+  //         ...oldState.layouts,
+  //         [oldState.currentBreakpoint]: cleanup(newLayout, Object.keys(oldState.componentHeights))
+  //       }
+  //     }
+  //   })
+  // }
+
+
+  // onBreakpointChange = (newBreakpoint: string, newCols: number) => {
+  //   this.setState({currentBreakpoint: newBreakpoint})
+
+  //   if(!this.state.edit) this.setState((oldState) => {
+
+  //     const newLayout = oldState.layouts[oldState.currentBreakpoint].map((e) => {
+  //       if(oldState.componentHeights[e.i]) console.log(e.i, Math.round(oldState.componentHeights[e.i]/(rowHeight+10)))
+  //       return {...e, moved:true, h: this.state.componentHeights[e.i]?Math.round(oldState.componentHeights[e.i]/(rowHeight+10)) : e.h }
+  //     })
+
+
+  //     return {
+  //       componentHeightsChanged: false, 
+  //       layouts: {
+  //         ...oldState.layouts,
+  //         [oldState.currentBreakpoint]: cleanup(newLayout, Object.keys(oldState.componentHeights))
+  //       }
+  //     }
+  //   })
+  // }
+
   toggleEdit = () => {
     this.setState((oldState,_) => {
       const newLayouts = {};
@@ -286,7 +382,7 @@ export default class DiscoveryPageGrid extends Component {
 
   addItem = (type) => this.setState((oldState) => {
     const key = oldState.counter;
-    const minHeight = typeMap[type].minHeight?typeMap[type].minHeight:2;
+    const minHeight = typeMap[type].minHeight?typeMap[type].minHeight:4;
 
     const newComponents = {...oldState.components, [`${key}`]: {type: type}};
     const newLayouts = {};
@@ -301,12 +397,7 @@ export default class DiscoveryPageGrid extends Component {
   }, this.forceUpdate())
 
   maxWidthEditChange = (e) => {
-    var w = null;
-    switch(e.target.value){
-      case 'md': w = breakpoints.md+1; break;
-      case 'sm': w = breakpoints.sm+1; break;
-      case 'xs': w = breakpoints.xs+1; break;
-    }
+    var w = grid_settings[e.target.value].width+1;
     this.setState({maxWidthEdit: w}, this.gridRef.current.onWindowResize);
   }
 
@@ -346,13 +437,16 @@ export default class DiscoveryPageGrid extends Component {
 
     const items = Object.keys(components).map((k) => { 
         return (
-          <div key={k} >
+          <div 
+            key={k} 
+            // style={{borderStyle:'dotted'}}
+          >
           <CSSTransition
             in={edit}
             timeout={300}
             classNames="blue"
           >
-            <div style={{...(edit?{ background: 'rgb(222, 235, 255)'}:{}), height:'100%'}}>
+            <div style={{...(edit?{  background: 'rgb(222, 235, 255)'}:{}), height:'100%'}}>
               <CSSTransition
                 in={edit}
                 timeout={300}
@@ -405,7 +499,7 @@ export default class DiscoveryPageGrid extends Component {
           />) : null}
         </Fragment>
       }>      
-        <ContentWrapper>
+        <div className="discovery-container">
           <div style={{display:'flex'}}>
             <PageTitle style={{paddingTop: '10px'}}>Discover - Query Builder</PageTitle> 
             <span style={{paddingLeft:'15px', marginTop:'13px'}}>
@@ -438,14 +532,12 @@ export default class DiscoveryPageGrid extends Component {
           >
             <div style={{padding: '0px', display:'flex', justifyContent: 'center'}}>
               <Radio.Group onChange={this.maxWidthEditChange} defaultValue="lg">
-                <Radio.Button value="lg">Large</Radio.Button>
-                <Radio.Button value="md">Medium</Radio.Button>
-                <Radio.Button value="sm">Small</Radio.Button>
-                <Radio.Button value="xs">Extra Small</Radio.Button>
+                {Object.keys(grid_settings).map((i) => {return (<Radio.Button value={i}>{grid_settings[i].label}</Radio.Button>)})}
               </Radio.Group>
             </div>
         </CSSTransition>
 
+            <div className="discovery-grid-container">
 
           <CSSTransition
             in={edit}
@@ -454,18 +546,22 @@ export default class DiscoveryPageGrid extends Component {
           >
             <div style={{
               ...(maxWidthEdit?{maxWidth:`${maxWidthEdit}px`} :{}), 
-              padding:'10px', marginBottom:'30px', marginLeft: 'auto', marginRight: 'auto'}}>
+              marginLeft: 'auto', marginRight: 'auto'
+            }}>
             <ResponsiveGridLayout className="discovery-grid" 
-              breakpoints={breakpoints}
-              cols={{lg: 6, md: 4, sm: 1, xs: 1}}
+              breakpoints={Object.fromEntries(Object.entries(grid_settings).map(([k, v]) => [k, v.width]))}
+              cols={Object.fromEntries(Object.entries(grid_settings).map(([k, v]) => [k, v.cols]))}
               layouts={layouts}
-              rowHeight={40}
+              rowHeight={rowHeight}
               ref={this.gridRef}
-              onLayoutChange={this.onLayoutChange}>
+              onLayoutChange={this.onLayoutChange}
+              onWidthChange={this.onWidthChange}
+              onBreakpointChange={this.onBreakpointChange}>
               {items}
             </ResponsiveGridLayout>
             </div>
           </CSSTransition>
+            </div>
 
           <CSSTransition
             in={!edit}
@@ -552,7 +648,7 @@ export default class DiscoveryPageGrid extends Component {
           )}
         </ModalTransition>
        
-        </ContentWrapper>
+        </div>
       </Page>
     );
   }

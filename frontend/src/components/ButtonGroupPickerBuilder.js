@@ -5,6 +5,7 @@ import { mkAttrQuery } from '../utils/utils';
 import { getAttributeValues } from '../utils/api'
 
 import './ButtonGroup.css'
+// import ReactResizeDetector from 'react-resize-detector';
 
 
 
@@ -16,28 +17,14 @@ export default class ButtonGroupPickerBuilder extends React.Component {
 		options: [], 
 	}
 
+
 	mkQuery = state => {
 		return mkAttrQuery(this.props.attribute, (v)=>v, "is", state.value)
 	}
 
-	// componentDidMount() {
-
-	// 	if(this.props.attribute)  getAttributeValues(this.props.attribute,
-	//       (result) => {
-	//         if(result) this.setState((oldState) => 
-	//           {return {...oldState, options: result}});
-	//       },
-	//       (error) => {
-	//         console.log(error)
-	//       }
-	//     )
-
- //        this.props.setQuery(this.mkQuery(this.state));
-
-	// }
 
 	componentDidMount() {
-		this.loadProps(this.props, true)
+		this.loadProps(this.props, true);
 	}
 
 	componentWillReceiveProps(nextProps){
@@ -68,23 +55,26 @@ export default class ButtonGroupPickerBuilder extends React.Component {
 	handleChange = e =>  {
 		this.setState({value: e.target.value});
         this.props.setQuery(this.mkQuery({value: e.target.value}));
-        console.log(this.state)
+        // console.log(this.state)
 	}
 
 	
 	render() {
+
 		return (
+	    // <ReactResizeDetector handleHeight onResize={(width, height) => this.props.onHeightChange(height)}>
 		  <div style={{marginBottom: '0.5em'}}>
 		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
 		  <Grid>
 		  	<GridColumn>
-         	    <Radio.Group onChange={this.handleChange} defaultValue="" buttonStyle="solid">
+         	    <Radio.Group onChange={this.handleChange} ref="myDiv" defaultValue="" buttonStyle="solid">
          	    	<Radio.Button value="" key="any">Any</Radio.Button>
          	    	{this.state.options.map(e => {return <Radio.Button value={e} key={e}>{e}</Radio.Button>})}
          	    </Radio.Group>
 		    </GridColumn>
 		  </Grid>
 		  </div>
+		// </ReactResizeDetector>
 		);
 	}
 }

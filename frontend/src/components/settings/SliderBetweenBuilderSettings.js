@@ -77,7 +77,7 @@ export default class SliderBetweenBuilderSettings extends React.Component {
 	
 	render() {
 		return (
-			<div>
+		  <div>
 		  <Grid>
 		  <GridColumn medium={5}>
 		  <h5 style={{paddingBottom: '0.5em'}}>Attribute:</h5>

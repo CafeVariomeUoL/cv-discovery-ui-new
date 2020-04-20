@@ -1,0 +1,55 @@
+.discovery-container{
+	margin:36px;
+}
+
+.discovery-grid-container {
+	max-width: 961px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 2em;
+}
+
+@media screen and (max-width: 1009px) {
+  .discovery-grid-container {
+  	/*background: blue;*/
+    width: 721px; /* The width is 100%, when the viewport is 800px or smaller */
+  }
+}
+
+
+
+@media screen and (max-width: 769px) {
+  .discovery-grid-container {
+  	/*background: yellow;*/
+    width: 601px; /* The width is 100%, when the viewport is 800px or smaller */
+  }
+}
+
+
+@media screen and (max-width: 649px) {
+  .discovery-grid-container {
+  	/*background: green;*/
+    width: 481px; /* The width is 100%, when the viewport is 800px or smaller */
+  }
+}
+
+@media screen and (max-width: 529px) {
+  .discovery-container{
+	margin:12px;
+  }
+  .discovery-grid-container {
+  	/*background: red;*/
+    width: 361px; /* The width is 100%, when the viewport is 800px or smaller */
+  }
+}
+
+
+@media screen and (max-width: 409px) {
+  .discovery-container{
+	margin:6px;
+  }
+  .discovery-grid-container {
+  	/*background: grey;*/
+    max-width: 360px; /* The width is 100%, when the viewport is 800px or smaller */
+  }
+}
