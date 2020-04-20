@@ -2,6 +2,13 @@
 	margin:36px;
 }
 
+
+.width-label {
+	margin-left: auto;
+	margin-right: auto;
+	height: 0px;
+}
+
 .discovery-grid-container {
 	max-width: 961px;
 	margin-left: auto;
@@ -9,7 +16,17 @@
 	margin-bottom: 2em;
 }
 
-@media screen and (max-width: 1009px) {
+@media screen and (max-width: 1032px) {
+		.width-radio-group{
+		visibility: hidden;
+	}
+	.width-label {
+		padding-top: 10px;
+		width: 62px;
+	}
+	  .width-label:before {
+		content: "Medium";
+	}
   .discovery-grid-container {
   	/*background: blue;*/
     width: 721px; /* The width is 100%, when the viewport is 800px or smaller */
@@ -18,7 +35,14 @@
 
 
 
-@media screen and (max-width: 769px) {
+@media screen and (max-width: 792px) {
+	  .width-label:before {
+		content: "Small";
+	}
+	.width-label {
+		width: 43px;
+	}
+
   .discovery-grid-container {
   	/*background: yellow;*/
     width: 601px; /* The width is 100%, when the viewport is 800px or smaller */
@@ -26,16 +50,28 @@
 }
 
 
-@media screen and (max-width: 649px) {
+@media screen and (max-width: 672px) {
+	  .width-label:before {
+		content: "Extra Small";
+	}
+		.width-label {
+		width: 87px;
+	}
   .discovery-grid-container {
   	/*background: green;*/
     width: 481px; /* The width is 100%, when the viewport is 800px or smaller */
   }
 }
 
-@media screen and (max-width: 529px) {
+@media screen and (max-width: 552px) {
+	  .width-label:before {
+		content: "Tiny";
+	}
+	.width-label {
+		width: 34px;
+	}
   .discovery-container{
-	margin:12px;
+	margin:24px;
   }
   .discovery-grid-container {
   	/*background: red;*/
@@ -44,12 +80,25 @@
 }
 
 
-@media screen and (max-width: 409px) {
+
+@media screen and (max-width: 408px) {
+	  .width-label:before {
+		content: "Extra Tiny";
+	}
+	.width-label {
+		width: 78px;
+	}
   .discovery-container{
 	margin:6px;
   }
   .discovery-grid-container {
-  	/*background: grey;*/
-    max-width: 360px; /* The width is 100%, when the viewport is 800px or smaller */
+  	/*background: red;*/
+    width: 341px; /* The width is 100%, when the viewport is 800px or smaller */
   }
+}
+
+
+
+.hrule {
+	border-bottom: 2px solid #DFE1E6;
 }

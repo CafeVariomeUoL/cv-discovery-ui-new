@@ -24,7 +24,8 @@ export const typeMap = {
     'EmptyBuilder': {
     	type: EmptyBuilder,
     	settings_type: EmptyBuilderSettings,
-    	label: 'Boolean group'
+    	label: 'Label',
+        minHeight: 2,
     },
     'BetweenBuilder': { 
     	type: BetweenBuilder,

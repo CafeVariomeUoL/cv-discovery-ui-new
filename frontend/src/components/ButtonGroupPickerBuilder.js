@@ -63,7 +63,7 @@ export default class ButtonGroupPickerBuilder extends React.Component {
 
 		return (
 	    // <ReactResizeDetector handleHeight onResize={(width, height) => this.props.onHeightChange(height)}>
-		  <div style={{marginBottom: '0.5em'}}>
+		  <div>
 		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
 		  <Grid>
 		  	<GridColumn>

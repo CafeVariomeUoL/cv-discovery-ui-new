@@ -1,22 +1,28 @@
 import React from 'react';
-import Select from '@atlaskit/select';
+// import Select from '@atlaskit/select';
 import { Grid, GridColumn } from '@atlaskit/page';
 import Textfield from '@atlaskit/textfield';
+import ToggleStateless from '@atlaskit/toggle';
 
 
 
 export default class EmptyBuilderSettings extends React.Component {
 
 	state = this.props.data ? this.props.data : {
-		operator: '',
+		no_hrule: false,
 		label: '',
 		canHaveChildren: true
 	}
 
+	componentDidMount() {
+        this.props.setData(this.state);
+	}
+
+
 	handleChange = prop_name => e =>  {
 		const newState = {...this.state};
-		if (prop_name === 'operator'){
-			newState[prop_name] = e.value;
+		if (prop_name === 'no_hrule'){
+			newState[prop_name] = !newState[prop_name];
 		}
 		else {
 			newState[prop_name] = e.target.value;
@@ -29,7 +35,7 @@ export default class EmptyBuilderSettings extends React.Component {
 	render() {
 		return (
 			<div>
-			<h3 style={{paddingBottom: '0.5em'}}>Boolean operator group</h3>
+			<h3 style={{paddingBottom: '0.5em'}}>Label</h3>
 	  
 		  <Grid>
 		  	<GridColumn medium={8}>
@@ -41,14 +47,10 @@ export default class EmptyBuilderSettings extends React.Component {
 		    />
 		  </GridColumn>
 		  <GridColumn>
-		  <h5 style={{paddingBottom: '0.5em'}}>Boolean operator:</h5>
-          <Select
-            className="single-select"
-          	classNamePrefix="react-select"
-          	defaultValue={{label:this.state.operator, value:this.state.operator}}
-            options={[{label: 'and', value:'and'}, {label: 'or', value:'or'}]}
-            onChange={this.handleChange('operator')} 
-          />
+		  <h5 style={{paddingBottom: '0.5em'}}>Horizontal line:</h5>
+		  	<div style={{boxSizing: 'content-box'}}>
+		  	<ToggleStateless size="large" isDefaultChecked={!this.state.no_hrule} onChange={this.handleChange('no_hrule')}/>
+		  	</div>
 		    </GridColumn>
 		  </Grid>
 		  </div>

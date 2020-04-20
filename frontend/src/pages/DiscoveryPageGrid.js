@@ -51,9 +51,10 @@ const grid_settings = {
   md: {width:720, cols:6, label:'Medium'}, 
   sm: {width:600, cols:4, label:'Small'}, 
   xs: {width:480, cols:1, label:'Extra Small'}, 
-  xxs: {width:360, cols:1, label:'Tiny'}};
+  xxs: {width:360, cols:1, label:'Tiny'},
+  xxxs: {width:340, cols:1, label:'Extra Tiny'}};
 
-const rowHeight = 15;
+const rowHeight = 14;
 
 const cleanup = (layout, dynamicNodes) => {
   console.log("inputs:", layout, dynamicNodes)
@@ -446,7 +447,11 @@ export default class DiscoveryPageGrid extends Component {
             timeout={300}
             classNames="blue"
           >
-            <div style={{...(edit?{  background: 'rgb(222, 235, 255)'}:{}), height:'100%'}}>
+            <div style={{
+              ...(edit?{  background: 'rgb(222, 235, 255)'}:{}), 
+              height:'100%',
+              overflowY:'hidden'
+            }}>
               <CSSTransition
                 in={edit}
                 timeout={300}
@@ -530,15 +535,18 @@ export default class DiscoveryPageGrid extends Component {
             classNames="width-box"
             unmountOnExit
           >
-            <div style={{padding: '0px', display:'flex', justifyContent: 'center'}}>
-              <Radio.Group onChange={this.maxWidthEditChange} defaultValue="lg">
-                {Object.keys(grid_settings).map((i) => {return (<Radio.Button value={i}>{grid_settings[i].label}</Radio.Button>)})}
-              </Radio.Group>
+            <div>
+             <h4 className="width-label"></h4>
+              <div className="width-radio-group" style={{padding: '0px', display:'flex', justifyContent: 'center'}}>
+                <Radio.Group onChange={this.maxWidthEditChange} defaultValue="lg">
+                  {Object.keys(grid_settings).map((i) => {return (<Radio.Button key={i} value={i}>{grid_settings[i].label}</Radio.Button>)})}
+                </Radio.Group>
+              </div>
+
             </div>
         </CSSTransition>
 
-            <div className="discovery-grid-container">
-
+          <div className="discovery-grid-container">
           <CSSTransition
             in={edit}
             timeout={300}
@@ -561,7 +569,7 @@ export default class DiscoveryPageGrid extends Component {
             </ResponsiveGridLayout>
             </div>
           </CSSTransition>
-            </div>
+          </div>
 
           <CSSTransition
             in={!edit}

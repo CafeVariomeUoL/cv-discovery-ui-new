@@ -43,10 +43,6 @@ export default class PickerBuilderSettings extends React.Component {
 			newData[prop_name] = e.value;
 		} else if (prop_name === 'load_vals_dynamically'){
 			newData[prop_name] = !newData[prop_name];
-
-
-
-
 		}
 		else {
 			newData[prop_name] = e.target.value;
