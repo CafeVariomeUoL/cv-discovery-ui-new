@@ -37,10 +37,14 @@ export default class SliderBetweenBuilder extends React.Component {
 
   render() {
     return (
-      <div style={{marginBottom: '0.5em'}}>
-        <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
-        <Grid>
-          <GridColumn>
+      <div>
+        {this.props.label_position !== 'left' && <h3>{this.props.label?this.props.label:'<Label>'}</h3>}
+        <div style={{display:'flex', paddingTop: '0.6em'}}>
+          {this.props.label_position === 'left' && 
+          <div className="label-left">
+            <h5>{this.props.label?this.props.label:'<Label>'}</h5>
+          </div>}
+          <div style={{flexGrow:2, marginTop:'5px'}}>
               <Slider range
                 min={this.props.minVal} 
                 max={this.props.maxVal} 
@@ -48,8 +52,8 @@ export default class SliderBetweenBuilder extends React.Component {
                 onChange={this.handleChange}
                 defaultValue={[Math.round((this.props.maxVal-this.props.minVal)/3), Math.round(2*(this.props.maxVal-this.props.minVal)/3)]} 
                 />
-          </GridColumn>
-        </Grid>  
+          </div>
+        </div>  
       </div>
     );
   }

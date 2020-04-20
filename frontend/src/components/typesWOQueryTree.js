@@ -14,7 +14,7 @@ import VariantBuilderSettings from './settings/VariantBuilderSettings';
 import BetweenBuilderSettings from './settings/BetweenBuilderSettings';
 import SliderBetweenBuilderSettings from './settings/SliderBetweenBuilderSettings';
 import PickerBuilderSettings from './settings/PickerBuilderSettings';
-import ValueBuilderSettings from './settings/ValueBuilderSettings';
+// import ValueBuilderSettings from './settings/ValueBuilderSettings';
 import PhenotypeBuilderSettings from './settings/PhenotypeBuilderSettings';
 import EmptyBuilderSettings from './settings/EmptyBuilderSettings';
 
@@ -42,12 +42,12 @@ export const typeMap = {
     },
     'ButtonGroupPickerBuilder': { 
     	type: ButtonGroupPickerBuilder, 
-    	settings_type: ValueBuilderSettings,
+    	settings_type: PickerBuilderSettings,
     	label: 'Button group'
     },
     'ValueBuilder': {
     	type: ValueBuilder,
-    	settings_type: ValueBuilderSettings,
+    	settings_type: PickerBuilderSettings,
     	label: 'Text input'
     },
     'PhenotypeBuilder': { 

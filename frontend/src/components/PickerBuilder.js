@@ -65,8 +65,12 @@ export default class PickerBuilder extends React.Component {
 	render() {
 		return (
 		  <div>
-			  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
-			  <div style={{display:'flex'}}>
+			  {this.props.label_position !== 'left' && <h3>{this.props.label?this.props.label:'<Label>'}</h3>}
+			  <div style={{display:'flex', paddingTop: '0.6em'}}>
+			    {this.props.label_position === 'left' && 
+			    <div className="label-left">
+			   		<h5>{this.props.label?this.props.label:'<Label>'}</h5>
+			   	</div>}
 			  	<div style={{minWidth:'90px', marginRight:'5px'}}>
 		          <Select
 		            className="single-select"

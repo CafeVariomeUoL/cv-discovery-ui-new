@@ -100,5 +100,17 @@
 
 
 .hrule {
+	min-height: 16px;
 	border-bottom: 2px solid #DFE1E6;
+}
+
+
+.builder > .hrule {
+	margin-bottom: 1.6em;
+}
+
+
+.label-left {
+	min-width: 80px;
+	margin-top: 12px;
 }

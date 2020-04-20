@@ -54,7 +54,7 @@ const grid_settings = {
   xxs: {width:360, cols:1, label:'Tiny'},
   xxxs: {width:340, cols:1, label:'Extra Tiny'}};
 
-const rowHeight = 14;
+const rowHeight = 16;
 
 const cleanup = (layout, dynamicNodes) => {
   console.log("inputs:", layout, dynamicNodes)
@@ -383,7 +383,7 @@ export default class DiscoveryPageGrid extends Component {
 
   addItem = (type) => this.setState((oldState) => {
     const key = oldState.counter;
-    const minHeight = typeMap[type].minHeight?typeMap[type].minHeight:4;
+    const minHeight = typeMap[type].minHeight?typeMap[type].minHeight:3;
 
     const newComponents = {...oldState.components, [`${key}`]: {type: type}};
     const newLayouts = {};
@@ -450,7 +450,7 @@ export default class DiscoveryPageGrid extends Component {
             <div style={{
               ...(edit?{  background: 'rgb(222, 235, 255)'}:{}), 
               height:'100%',
-              overflowY:'hidden'
+              // overflowY:'hidden'
             }}>
               <CSSTransition
                 in={edit}

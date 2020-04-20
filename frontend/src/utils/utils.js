@@ -231,3 +231,8 @@ export const cast = (o,t) => {
     default: return o
   }
 }
+
+export const label_position = [
+  {label:'Top', value:'top'},
+  {label:'Left', value:'left'}
+]

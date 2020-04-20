@@ -14,6 +14,7 @@ export default class VariantBuilderSettings extends React.Component {
 	state = {
 		data: this.props.data ? this.props.data : {
 			label:'',
+			hrule: false,
 			assembly:{},
 			chr:{},
 			chr_start:{},
@@ -48,7 +49,9 @@ export default class VariantBuilderSettings extends React.Component {
 
 	handleChange = prop_name => e =>  {
 		const newData = {...this.state.data};
-		if (prop_name === 'label'){
+		if (prop_name === 'hrule'){
+			newData[prop_name] = !newData[prop_name];
+		} else if (prop_name === 'label'){
 			newData[prop_name] = e.target.value;
 		}
 		else {
@@ -64,7 +67,7 @@ export default class VariantBuilderSettings extends React.Component {
 		return (
 			<div>	  
 		  <Grid>
-		  <GridColumn>
+		  <GridColumn medium={4}>
 		  	<h5 style={{paddingBottom: '0.5em'}}>Label:</h5>
 		  <Textfield
 		      name="label"
@@ -72,6 +75,12 @@ export default class VariantBuilderSettings extends React.Component {
 		      onChange={this.handleChange('label')} 
 		    />
 		  </GridColumn>
+		  <GridColumn>
+		  <h5 style={{paddingBottom: '0.5em'}}>Horizontal line under label:</h5>
+		  	<div style={{boxSizing: 'content-box'}}>
+		  	<ToggleStateless size="large" isDefaultChecked={this.state.data.hrule} onChange={this.handleChange('hrule')}/>
+		  	</div>
+		    </GridColumn>
 		  <GridColumn medium={4}>
 		  <h5 style={{paddingBottom: '0.5em'}}>Assembly:</h5>
           <Select

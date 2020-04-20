@@ -2,7 +2,7 @@ import React from 'react';
 import Select from '@atlaskit/select';
 import { Grid, GridColumn } from '@atlaskit/page';
 import Textfield from '@atlaskit/textfield';
-import { mkLabel, getType } from '../../utils/utils'
+import { mkLabel, getType, label_position } from '../../utils/utils'
 import ToggleStateless from '@atlaskit/toggle';
 
 
@@ -10,7 +10,8 @@ export default class SliderBetweenBuilderSettings extends React.Component {
 
 	state = {
 		data: this.props.data ? this.props.data : {
-			label:'', 
+			label:'',
+			label_position: 'top',
 			attribute:{},
 			step:1,
 			minVal:0,
@@ -57,7 +58,7 @@ export default class SliderBetweenBuilderSettings extends React.Component {
 	handleChange = prop_name => e =>  {
 		const newData = {...this.state.data};
 		const newInvalid = {...this.state.invalid};
-		if (prop_name === 'attribute'){
+		if (prop_name === 'attribute' || prop_name === 'label_position'){
 			newData[prop_name] = e.value;
 		}
 		else if (prop_name === 'label'){
@@ -84,12 +85,19 @@ export default class SliderBetweenBuilderSettings extends React.Component {
           <Select
             className="single-select"
           	classNamePrefix="react-select"
+          	menuPortalTarget={document.body}
+            styles={{
+                  menuPortal: base => ({
+                    ...base,
+                    zIndex: 9999,
+                  }),
+                }}
             options={this.state.attributes}
             defaultValue={{label:mkLabel(this.state.data.attribute), value:this.state.data.attribute}}
             onChange={this.handleChange('attribute')} 
           />
 		    </GridColumn>
-		  	<GridColumn>
+		  	<GridColumn medium={4}>
 		  	<h5 style={{paddingBottom: '0.5em'}}>Label:</h5>
 		  	<Textfield
 		      name="label"
@@ -97,6 +105,25 @@ export default class SliderBetweenBuilderSettings extends React.Component {
 		      onChange={this.handleChange('label')} 
 		    />
 		  </GridColumn>
+
+		  <GridColumn>
+		  <h5 style={{paddingBottom: '0.5em'}}>Label position:</h5>
+          <Select
+            className="single-select"
+          	classNamePrefix="react-select"
+            options={label_position}
+            menuPortalTarget={document.body}
+            styles={{
+                  menuPortal: base => ({
+                    ...base,
+                    zIndex: 9999,
+                  }),
+                }}
+            defaultValue={this.state.data.label_position === 'top' ? label_position[0] : label_position[1]}
+            onChange={this.handleChange('label_position')} 
+          />
+		    </GridColumn>
+
 		  </Grid>
 		  <div style={{paddingTop: '1.5em'}}>
 		  <Grid >

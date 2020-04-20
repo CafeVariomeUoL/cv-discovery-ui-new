@@ -94,8 +94,8 @@ export default class ValueBuilder extends React.Component {
 
     return(
       // <ReactResizeDetector handleHeight onResize={(width, height) => this.props.onHeightChange(height)}>
-      <div>
-        <h3 style={{paddingBottom: '0.5em'}}>Variant</h3>
+      <div className="builder">
+        <div class={this.props.hrule ? "hrule": ""}><h3 style={{paddingBottom: '0.5em'}}>Variant</h3></div>
         <div style={{display:'flex', flexWrap: 'wrap'}}>
           <div style={{minWidth:'100px', marginRight:'5px', marginBottom: '5px'}}>
             <Select

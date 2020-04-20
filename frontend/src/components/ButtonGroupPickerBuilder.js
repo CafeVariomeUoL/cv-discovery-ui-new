@@ -64,16 +64,30 @@ export default class ButtonGroupPickerBuilder extends React.Component {
 		return (
 	    // <ReactResizeDetector handleHeight onResize={(width, height) => this.props.onHeightChange(height)}>
 		  <div>
-		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
-		  <Grid>
-		  	<GridColumn>
-         	    <Radio.Group onChange={this.handleChange} ref="myDiv" defaultValue="" buttonStyle="solid">
-         	    	<Radio.Button value="" key="any">Any</Radio.Button>
-         	    	{this.state.options.map(e => {return <Radio.Button value={e} key={e}>{e}</Radio.Button>})}
-         	    </Radio.Group>
-		    </GridColumn>
-		  </Grid>
-		  </div>
+		  {this.props.label_position !== 'left' && <h3>{this.props.label?this.props.label:'<Label>'}</h3>}
+			  <div style={{display:'flex', paddingTop: '0.6em'}}>
+			    {this.props.label_position === 'left' && 
+			    <div className="label-left">
+			   		<h5>{this.props.label?this.props.label:'<Label>'}</h5>
+			   	</div>}
+			   	<div style={{marginTop:'3px'}}>
+	         	    <Radio.Group onChange={this.handleChange} ref="myDiv" defaultValue="" buttonStyle="solid">
+	         	    	<Radio.Button value="" key="any">Any</Radio.Button>
+	         	    	{this.state.options.map(e => {return <Radio.Button value={e} key={e}>
+	         	    		<span style={{
+					        	whiteSpace: 'nowrap',
+					        	overflow: 'hidden',
+					        	display: 'inline-block',
+					        	maxWidth:'200px',
+					        	float: 'left',
+					        	paddingTop: '1px',
+					        	textOverflow:'ellipsis'
+					        }}>{e}</span>
+				        </Radio.Button>})}
+	         	    </Radio.Group>
+		    	</div>
+		 	 </div>
+		 </div>
 		// </ReactResizeDetector>
 		);
 	}
