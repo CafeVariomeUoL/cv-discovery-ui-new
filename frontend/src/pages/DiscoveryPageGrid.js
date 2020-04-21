@@ -329,10 +329,10 @@ export default class DiscoveryPageGrid extends Component {
 
       
 
-      return {...oldState, edit: !oldState.edit, maxWidthEdit:null, layouts:newLayouts}
+      return {edit: !oldState.edit, editSize: 'lg', maxWidthEdit:null, layouts:newLayouts}
     }, () => {
       if(!this.state.edit){
-        console.log("saving...")
+        // console.log("saving...")
         this.saveSettings();
       }
       this.gridRef.current.onWindowResize()
