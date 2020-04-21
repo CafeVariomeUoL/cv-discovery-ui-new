@@ -56,38 +56,38 @@ const grid_settings = {
 
 const rowHeight = 16;
 
-const cleanup = (layout, dynamicNodes) => {
-  console.log("inputs:", layout, dynamicNodes)
-  var layoutMap = {}
-  for (var i = 0; i < layout.length; i++) {
-    layoutMap[layout[i].i] = layout[i];
-  }
-  console.log(layoutMap)
+// const cleanup = (layout, dynamicNodes) => {
+//   console.log("inputs:", layout, dynamicNodes)
+//   var layoutMap = {}
+//   for (var i = 0; i < layout.length; i++) {
+//     layoutMap[layout[i].i] = layout[i];
+//   }
+//   console.log(layoutMap)
 
-  // sort the dynamic nodes by height
-  dynamicNodes.sort((a, b) => layoutMap[a].y - layoutMap[b].y)
-  console.log("dynNodes", dynamicNodes)
+//   // sort the dynamic nodes by height
+//   dynamicNodes.sort((a, b) => layoutMap[a].y - layoutMap[b].y)
+//   console.log("dynNodes", dynamicNodes)
 
-  for (var i = 0; i < dynamicNodes.length; i++) {
-    const n = dynamicNodes[i];
-    const nodesBelowN = layout.filter((e) => e.i != n && e.y >= layoutMap[n].y);
-    nodesBelowN.sort((a, b) => a.y - b.y)
-    console.log("nodes below", layoutMap[n], nodesBelowN)
-    if(nodesBelowN.length > 0){
-      const delta = (layoutMap[n].y+layoutMap[n].h)-nodesBelowN[0].y;
-      console.log("delta:", delta);
-      if(delta !== 0){
-        for (var j = 0; j < layout.length; j++) {
-          if(layout[j].i != n && layout[j].y >= layoutMap[n].y) layout[j].y += delta;
-        }
-      }
-    }
+//   for (var i = 0; i < dynamicNodes.length; i++) {
+//     const n = dynamicNodes[i];
+//     const nodesBelowN = layout.filter((e) => e.i != n && e.y >= layoutMap[n].y);
+//     nodesBelowN.sort((a, b) => a.y - b.y)
+//     console.log("nodes below", layoutMap[n], nodesBelowN)
+//     if(nodesBelowN.length > 0){
+//       const delta = (layoutMap[n].y+layoutMap[n].h)-nodesBelowN[0].y;
+//       console.log("delta:", delta);
+//       if(delta !== 0){
+//         for (var j = 0; j < layout.length; j++) {
+//           if(layout[j].i != n && layout[j].y >= layoutMap[n].y) layout[j].y += delta;
+//         }
+//       }
+//     }
 
-  }
+//   }
 
-  console.log("newLayout:", layout)
-  return layout
-}
+//   console.log("newLayout:", layout)
+//   return layout
+// }
 
 export default class DiscoveryPageGrid extends Component {
   gridRef = React.createRef();
@@ -98,7 +98,7 @@ export default class DiscoveryPageGrid extends Component {
     counter:0,
     settingsModalKey:null,
     layouts: {lg:[], md:[], sm:[], xs:[], xxs: []},
-    currentBreakpoint: 'lg',
+    // currentBreakpoint: 'lg',
     components: {},
     componentHeights:{},
     componentHeightsChanged:false,
@@ -107,6 +107,7 @@ export default class DiscoveryPageGrid extends Component {
     isLoaded: false,
     debug: false,
     edit: false,
+    editSize: 'lg',
     // error:'aadfbdfbmdfhkdfzjkhdfkfkjfkjfakjhfdkhjfdkjhfadkfkfkfkhjdfbmndfkfdkhdfkhjdfklhdeklhjsdLKwdlkdewlkwdkldkaa'
   };
 
@@ -371,7 +372,7 @@ export default class DiscoveryPageGrid extends Component {
 
   maxWidthEditChange = (e) => {
     var w = grid_settings[e.target.value].width+1;
-    this.setState({maxWidthEdit: w}, this.gridRef.current.onWindowResize);
+    this.setState({editSize: e.target.value, maxWidthEdit: w}, this.gridRef.current.onWindowResize);
   }
 
 
@@ -404,9 +405,32 @@ export default class DiscoveryPageGrid extends Component {
         })
   }
 
+  // reset all layouts to lg
+  applyLayoutToAll = () => {
+    const newLayouts = {};
+    const lgNodes = this.state.layouts.lg;
+    lgNodes.sort((a, b) => a.y - b.y === 0 ? a.x - b.x : a.y - b.y)
+    console.log(lgNodes.map((n) => n.i))
+
+    if (lgNodes.length > 0){
+      var currentY = lgNodes[0].h;
+      for (var i = 1; i < lgNodes.length; i++) {
+        lgNodes[i].y = currentY;
+        currentY += lgNodes[i].h;
+      }
+    }
+    
+
+    for (var i = 0; i < Object.keys(this.state.layouts).length; i++) {
+      const l = Object.keys(this.state.layouts)[i];
+      newLayouts[l] = lgNodes;
+    }
+    this.setState({layouts: newLayouts})//, this.gridRef.current.onWindowResize);
+  }
+
   render() {
 
-    const { error, info, debug, isLoaded, layouts, components, edit, maxWidthEdit, settingsModalKey } = this.state;
+    const { error, info, debug, isLoaded, layouts, components, edit, editSize, maxWidthEdit, settingsModalKey } = this.state;
 
     const items = Object.keys(components).map((k) => { 
         return (
@@ -508,8 +532,14 @@ export default class DiscoveryPageGrid extends Component {
           >
             <div>
              <h4 className="width-label"></h4>
-              <div className="width-radio-group" style={{padding: '0px', display:'flex', justifyContent: 'center'}}>
-                <Radio.Group onChange={this.maxWidthEditChange} defaultValue="lg">
+              <div className="width-radio-group" style={{
+                ...(editSize === 'lg' ? {position:'relative', left: '-123px'} : {}),
+                padding: '0px', 
+                display:'flex', 
+                justifyContent: 'center'}
+              }>
+                {editSize === 'lg' && <Button appearance="subtle" style={{marginRight:'107px'}} onClick={this.applyLayoutToAll}>Apply layout to all</Button>}
+                <Radio.Group onChange={this.maxWidthEditChange} defaultValue="lg" >
                   {Object.keys(grid_settings).map((i) => {return (<Radio.Button key={i} value={i}>{grid_settings[i].label}</Radio.Button>)})}
                 </Radio.Group>
               </div>
