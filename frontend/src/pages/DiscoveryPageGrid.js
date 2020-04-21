@@ -110,44 +110,6 @@ export default class DiscoveryPageGrid extends Component {
     // error:'aadfbdfbmdfhkdfzjkhdfkfkjfkjfakjhfdkhjfdkjhfadkfkfkfkhjdfbmndfkfdkhdfkhjdfklhdeklhjsdLKwdlkdewlkwdkldkaa'
   };
 
-
-  componentDidMount() {
-    fetch(
-      process.env.REACT_APP_API_URL+"/discovery/loadSettings?id="+this.props.match.params.id, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(res => res.json())
-      .then(
-        (result) => {
-          // console.log("Tree: ");
-          if(result){
-            const parsed = JSON.parse(result);
-            // console.log(JSON.parse(result));
-            // console.log("prune&mkQueryTree:", pruneTree(mkQueryTree(JSON.parse(result))));
-            this.setState({
-              isLoaded: true,
-              components: parsed.components,
-              layouts: parsed.layouts,
-            });
-          }
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          this.setState({
-            isLoaded: false,
-            error: error
-          });
-        }
-      )
-  }
-
   componentDidMount() {
     fetch(
       process.env.REACT_APP_API_URL+"/discovery/loadSettings?id="+this.props.match.params.id, {
@@ -172,6 +134,16 @@ export default class DiscoveryPageGrid extends Component {
             for (var i = 0; i < items.length; i++) {
               v = parseInt(items[i]);
               if(v > maxVal) maxVal = v;
+            }
+
+
+            // fix layouts that have an infinity y value, which has been serialised as null
+            const layouts = Object.keys(parsed.layouts);
+            for (var l = 0; l < layouts.length; l++) {
+              const layout = layouts[l];
+              for (var i = 0; i < parsed.layouts[layout].length; i++) {
+                if(parsed.layouts[layout][i].y === null) parsed.layouts[layout][i].y = Infinity
+              }
             }
 
             this.setState({
@@ -391,7 +363,7 @@ export default class DiscoveryPageGrid extends Component {
     for (var i = 0; i < Object.keys(this.state.layouts).length; i++) {
       const layout_key = Object.keys(this.state.layouts)[i];
       console.log(layout_key);
-      newLayouts[layout_key] = [...oldState.layouts[layout_key], {i:`${key}`, x:0, y:0, w:6, h:minHeight, minH: minHeight, static:false}]
+      newLayouts[layout_key] = [...oldState.layouts[layout_key], {i:`${key}`, x:0, y:Infinity, w:8, h:minHeight, minH: minHeight, static:false}]
     }
 
     return {components: newComponents, layouts: newLayouts, counter: key+1}
