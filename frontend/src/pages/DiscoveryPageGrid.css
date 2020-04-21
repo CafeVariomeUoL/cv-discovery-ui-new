@@ -3,6 +3,18 @@
 }
 
 
+.discovery-header {
+		display: flex;
+
+}
+
+.discovery-header, .discovery-results {
+	max-width: 960px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+
 .width-label {
 	margin-left: auto;
 	margin-right: auto;

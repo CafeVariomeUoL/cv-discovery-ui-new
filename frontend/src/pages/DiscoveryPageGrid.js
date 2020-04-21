@@ -477,7 +477,7 @@ export default class DiscoveryPageGrid extends Component {
         </Fragment>
       }>      
         <div className="discovery-container">
-          <div style={{display:'flex'}}>
+          <div className="discovery-header">
             <PageTitle style={{paddingTop: '10px'}}>Discover - Query Builder</PageTitle> 
             <span style={{paddingLeft:'15px', marginTop:'13px'}}>
               <Button 
@@ -494,11 +494,10 @@ export default class DiscoveryPageGrid extends Component {
               Debug mode
             </span>
           </div>
-          <section style={{marginBottom: '20px'}}>
+          <section className="discovery-header" style={{marginBottom: '20px'}}>
             <p>
               I am searching for records which include:
             </p>
-            
           </section>
 
           <CSSTransition
@@ -549,13 +548,13 @@ export default class DiscoveryPageGrid extends Component {
             classNames="query-table"
             unmountOnExit
           >
-            <div style={{margin:'0px', padding:'0px'}}>
+            <div className="discovery-results">
               <Button isLoading={this.state.showLoadingState} appearance="primary" onClick={this.runQuery}>Run query</Button>
               <h4 style={{paddingBottom:'10px'}}>Results:</h4>
               <BootstrapTable keyField='id' data={ this.state.results } columns={ columns } />
            
               {debug &&
-              <div>
+              <div className="discovery-results">
                 <h4 style={{paddingTop:'30px', paddingBottom:'10px'}}>Human readable Query:</h4>
                 <AkCodeBlock 
                   language="text" 
@@ -582,7 +581,7 @@ export default class DiscoveryPageGrid extends Component {
             classNames="add-menu"
             unmountOnExit
           >
-          <div style={{margin:'0px', padding:'0px'}}>
+          <div className="discovery-results">
             <h4 style={{paddingBottom:'10px'}}>Add a query builder:</h4>
             <Select
               options={queryBuilders}
