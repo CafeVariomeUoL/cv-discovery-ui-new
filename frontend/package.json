@@ -5,6 +5,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "buildCV": "node ./build-non-split.js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "surge": "bash surge_login.sh && surge --project ./build/ --domain atlaskit-starter.surge.sh",
@@ -52,7 +53,6 @@
     "react-scripts": "^3.4.0",
     "surge": "^0.21.3"
   },
-  "homepage": "/discovery/",
   "browserslist": {
     "production": [
       ">0.2%",

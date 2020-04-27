@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Router, Route, Switch } from 'react-router';
-import { createBrowserHistory } from 'history';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 // import DiscoveryPage from '../pages/DiscoveryPage';
 import DiscoveryPageGrid from '../pages/DiscoveryPageGrid';
@@ -10,36 +9,12 @@ import '@atlaskit/css-reset';
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 
-const history = createBrowserHistory({
-    basename: process.env.PUBLIC_URL
-});
 
 export default class MainRouter extends Component {
-  // constructor() {
-  //   super();
-  //   this.state = {
-  //     navOpenState: {
-  //       isOpen: true,
-  //       width: 304,
-  //     }
-  //   }
-  // }
-
-  // getChildContext () {
-  //   return {
-  //     navOpenState: this.state.navOpenState,
-  //   };
-  // }
-
-  // onNavResize = (navOpenState) => {
-  //   this.setState({
-  //     navOpenState,
-  //   });
-  // }
 
   render() {
     return (
-      <Router history={history}>
+      <Router basename={process.env.PUBLIC_URL}>
         <Switch>
           <Route path="/:id" component={DiscoveryPageGrid} />
         </Switch>
@@ -47,7 +22,3 @@ export default class MainRouter extends Component {
     );
   }
 }
-
-// MainRouter.childContextTypes = {
-//   navOpenState: PropTypes.object,
-// }
