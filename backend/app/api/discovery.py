@@ -14,8 +14,8 @@ from sqlalchemy.sql import text
 
 router = APIRouter()
 
-@router.get("/discover/getAttributes")
-async def get_attributes():
+@router.get("/discover/getAttributes/{id}")
+async def get_attributes(id: str):
     query = select([
             eav_attributes.c.eav_attribute.label("attribute"),
         ])
@@ -23,6 +23,13 @@ async def get_attributes():
     print(query.compile(compile_kwargs={"literal_binds": True}))
 
     return await database.fetch_all(query=query)
+
+
+
+@router.get("/discover/userIsAdminOf/{id}")
+async def get_attributes(id: str):
+    return True
+
 
 
 
@@ -52,21 +59,21 @@ async def get_attributes_vals(payload: AttributeValues):
 
 
 @router.get("/discover/loadSettings/{id}")
-async def save_discovery_settings(id: int):
+async def save_discovery_settings(id: str):
     query = select([discovery_settings.c.data]).where(discovery_settings.c.id == id)
     return await database.execute(query=query)
 
 
 
 @router.post("/discover/saveSettings/{id}")
-async def save_discovery_settings(id_: int, data: dict):
+async def save_discovery_settings(id: str, data: dict):
 
     query = insert(discovery_settings).values(
-            id=id_,
+            id=id,
             data=data
         ).on_conflict_do_update(
                 index_elements=['id'],
-                set_ = dict(data=payload.data), 
+                set_ = dict(data=data), 
             )
 
     return await database.execute(query=query)
