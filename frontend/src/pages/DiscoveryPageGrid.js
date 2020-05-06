@@ -11,6 +11,7 @@ import PageTitle from '../components/PageTitle';
 import { mkLabel, getType, mergeExists, removeEmpty, humanReadableQuery, generateFinalQuery, pruneTree, mkQueryTree, collectQueries } from '../utils/utils'
 
 import { typeMap } from '../components/types'
+import { getUserIsAdminOf } from '../utils/api'
 
 import styled from 'styled-components';
 
@@ -56,43 +57,8 @@ const grid_settings = {
 
 const rowHeight = 16;
 
-// const cleanup = (layout, dynamicNodes) => {
-//   console.log("inputs:", layout, dynamicNodes)
-//   var layoutMap = {}
-//   for (var i = 0; i < layout.length; i++) {
-//     layoutMap[layout[i].i] = layout[i];
-//   }
-//   console.log(layoutMap)
-
-//   // sort the dynamic nodes by height
-//   dynamicNodes.sort((a, b) => layoutMap[a].y - layoutMap[b].y)
-//   console.log("dynNodes", dynamicNodes)
-
-//   for (var i = 0; i < dynamicNodes.length; i++) {
-//     const n = dynamicNodes[i];
-//     const nodesBelowN = layout.filter((e) => e.i != n && e.y >= layoutMap[n].y);
-//     nodesBelowN.sort((a, b) => a.y - b.y)
-//     console.log("nodes below", layoutMap[n], nodesBelowN)
-//     if(nodesBelowN.length > 0){
-//       const delta = (layoutMap[n].y+layoutMap[n].h)-nodesBelowN[0].y;
-//       console.log("delta:", delta);
-//       if(delta !== 0){
-//         for (var j = 0; j < layout.length; j++) {
-//           if(layout[j].i != n && layout[j].y >= layoutMap[n].y) layout[j].y += delta;
-//         }
-//       }
-//     }
-
-//   }
-
-//   console.log("newLayout:", layout)
-//   return layout
-// }
-
 export default class DiscoveryPageGrid extends Component {
   gridRef = React.createRef();
-
-  componentRefs = {};
 
   state = {
     counter:0,
@@ -107,6 +73,7 @@ export default class DiscoveryPageGrid extends Component {
     isLoaded: false,
     debug: false,
     edit: false,
+    canEdit:false,
     editSize: 'lg',
     // error:'aadfbdfbmdfhkdfzjkhdfkfkjfkjfakjhfdkhjfdkjhfadkfkfkfkhjdfbmndfkfdkhdfkhjdfklhdeklhjsdLKwdlkdewlkwdkldkaa'
   };
@@ -157,7 +124,7 @@ export default class DiscoveryPageGrid extends Component {
           } else {
             this.setState({
               isLoaded: true,
-              info: `The discovery page '${this.props.match.params.id}' does not exist yet. To create it, press edit...`
+              // info: `The discovery page '${id}' does not exist yet. To create it, press edit...`
             });
           }
         },
@@ -169,7 +136,21 @@ export default class DiscoveryPageGrid extends Component {
             error: error
           });
         }
-      )
+    )
+
+    getUserIsAdminOf(id, 
+      (result) => {
+        this.setState({
+          canEdit: result,
+          edit: result ? this.state.edit : false,
+          debug: result ? this.state.debug : false,
+        });
+      }, 
+      (error) => {
+        this.setState({
+          error: error
+        });
+      })
   }
 
 
@@ -435,7 +416,7 @@ export default class DiscoveryPageGrid extends Component {
 
   render() {
 
-    const { error, info, debug, isLoaded, layouts, components, edit, editSize, maxWidthEdit, settingsModalKey } = this.state;
+    const { error, info, debug, isLoaded, layouts, components, canEdit, edit, editSize, maxWidthEdit, settingsModalKey } = this.state;
 
     const items = Object.keys(components).map((k) => { 
         return (
@@ -508,20 +489,20 @@ export default class DiscoveryPageGrid extends Component {
         <div className="discovery-container">
           <div className="discovery-header">
             <PageTitle style={{paddingTop: '10px'}}>Discover - Query Builder</PageTitle> 
-            <span style={{paddingLeft:'15px', marginTop:'13px'}}>
+            {canEdit && <span style={{paddingLeft:'15px', marginTop:'13px'}}>
               <Button 
                 appearance={!edit?"subtle":"primary"} 
                 onClick={this.toggleEdit}>
                 {edit?'Save':'Edit'}
               </Button>
-            </span>
+            </span>}
             
-            <span style={{paddingLeft:'15px', marginTop:'16px'}}>
+            {canEdit && <span style={{paddingLeft:'15px', marginTop:'16px'}}>
               <ToggleStateless isDefaultChecked={this.state.debug} onChange={() => this.setState({debug: !this.state.debug})}/>
-            </span>
-            <span style={{marginTop:'19px', fontSize: '14px'}}>
+            </span>}
+            {canEdit && <span style={{marginTop:'19px', fontSize: '14px'}}>
               Debug mode
-            </span>
+            </span>}
           </div>
           <section className="discovery-header" style={{marginBottom: '20px'}}>
             <p>

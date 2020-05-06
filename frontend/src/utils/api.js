@@ -40,3 +40,16 @@ export const getAttributeValuesLimitOffset = (attribute, limit, offset, callback
   })
   .then(res => res.json())
   .then(callback, callback_err);
+
+
+export const getUserIsAdminOf = (id, callback, callback_err) => fetch(
+  process.env.REACT_APP_API_URL+"/discover/userIsAdminOf/"+id, {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
+  }
+  })
+  .then(res => res.json())
+  .then(callback, callback_err);
