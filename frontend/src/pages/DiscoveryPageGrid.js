@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import Spinner from '@atlaskit/spinner';
 import ModalDialog, { ModalFooter, ModalTransition } from '@atlaskit/modal-dialog';
 import ToggleStateless from '@atlaskit/toggle';
+import Textfield from '@atlaskit/textfield';
 
 import { Alert,Radio } from 'antd';
 
@@ -62,6 +63,7 @@ export default class DiscoveryPageGrid extends Component {
 
   state = {
     counter:0,
+    title: 'Query builder',
     settingsModalKey:null,
     layouts: {lg:[], md:[], sm:[], xs:[], xxs: []},
     // currentBreakpoint: 'lg',
@@ -117,6 +119,7 @@ export default class DiscoveryPageGrid extends Component {
 
             this.setState({
               isLoaded: true,
+              title: parsed.title?parsed.title:'<Title>',
               components: parsed.components,
               layouts: parsed.layouts,
               counter: maxVal+1
@@ -364,6 +367,7 @@ export default class DiscoveryPageGrid extends Component {
   }
 
 
+
   openSettings = (key) => () => this.setState({ settingsModalKey: key })
 
   closeSettings = () => this.setState({ settingsModalKey: null })
@@ -379,7 +383,7 @@ export default class DiscoveryPageGrid extends Component {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({components:this.state.components, layouts:this.state.layouts})
+        body: JSON.stringify({title: this.state.title, components:this.state.components, layouts:this.state.layouts})
       })
       .then(res => res.json())
       .then(
@@ -419,7 +423,7 @@ export default class DiscoveryPageGrid extends Component {
 
   render() {
 
-    const { error, info, debug, isLoaded, layouts, components, canEdit, edit, editSize, maxWidthEdit, settingsModalKey } = this.state;
+    const { title, error, info, debug, isLoaded, layouts, components, canEdit, edit, editSize, maxWidthEdit, settingsModalKey } = this.state;
 
     const items = Object.keys(components).map((k) => { 
         return (
@@ -491,7 +495,11 @@ export default class DiscoveryPageGrid extends Component {
       }>      
         <div className="discovery-container">
           <div className="discovery-header">
-            <PageTitle style={{paddingTop: '10px'}}>Discover - Query Builder</PageTitle> 
+            {edit?<div style={{paddingTop: '12px', maxWidth:'300px'}}><Textfield
+              name="label"
+              style={{fontSize:'29px', height:'30px'}}
+              defaultValue={title}
+              onChange={(e) => {this.setState({title: e.target.value})}}/></div>:<PageTitle style={{paddingTop: '10px'}}>{title}</PageTitle>}
             {canEdit && <span style={{paddingLeft:'15px', marginTop:'13px'}}>
               <Button 
                 appearance={!edit?"subtle":"primary"} 
@@ -507,11 +515,6 @@ export default class DiscoveryPageGrid extends Component {
               Debug mode
             </span>}
           </div>
-          <section className="discovery-header" style={{marginBottom: '20px'}}>
-            <p>
-              I am searching for records which include:
-            </p>
-          </section>
 
           <CSSTransition
             in={edit}
