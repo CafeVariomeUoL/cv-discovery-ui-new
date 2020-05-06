@@ -37,7 +37,7 @@ export default class PickerBuilder extends React.Component {
 
 	loadProps(nextProps, force = false){
 		if((force && nextProps.attribute) || (nextProps.attribute && this.props.attribute !== nextProps.attribute)) {
-			getAttributeValues(nextProps.attribute,
+			getAttributeValues(this.props.settings_id, nextProps.attribute,
 		        (result) => {
 		          console.log(result);
 		           if(result) this.setState({options: result.map((e) => {return {key:e, label:e, value:e}})});

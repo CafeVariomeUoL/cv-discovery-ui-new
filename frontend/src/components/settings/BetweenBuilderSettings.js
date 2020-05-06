@@ -19,7 +19,7 @@ export default class BetweenBuilderSettings extends React.Component {
 
 
 	componentDidMount() {
-	    getAttributes(
+	    getAttributes(this.props.settings_id,
 	        (result) => {
 	          this.setState({
 	            attributes: result.filter(e => getType(e.attribute) == 'int' || getType(e.attribute) == 'float').map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})

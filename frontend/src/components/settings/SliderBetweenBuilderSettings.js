@@ -4,7 +4,7 @@ import { Grid, GridColumn } from '@atlaskit/page';
 import Textfield from '@atlaskit/textfield';
 import { mkLabel, getType, label_position } from '../../utils/utils'
 import ToggleStateless from '@atlaskit/toggle';
-
+import { getAttributes } from '../../utils/api'
 
 export default class SliderBetweenBuilderSettings extends React.Component {
 
@@ -27,31 +27,18 @@ export default class SliderBetweenBuilderSettings extends React.Component {
 
 
 	componentDidMount() {
-	    fetch(
-	      process.env.REACT_APP_API_URL+"/discovery/getAttributes", {
-	        headers: {
-	          "Access-Control-Allow-Origin": "*",
-	          'Content-Type': 'application/json',
-	          'Accept': 'application/json',
-	          'X-Requested-With': 'XMLHttpRequest'
-	        }
-	      })
-	      .then(res => res.json())
-	      .then(
-	        (result) => {
+	    getAttributes(this.props.settings_id,
+	    	(result) => {
 	          this.setState({
 	            attributes: result.filter(e => getType(e.attribute) == 'int' || getType(e.attribute) == 'float').map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})
 	          });
 	        },
-	        // Note: it's important to handle errors here
-	        // instead of a catch() block so that we don't swallow
-	        // exceptions from actual bugs in components.
 	        (error) => {
 	          this.setState({
 	            error: error
 	          });
 	        }
-	      )
+	    )
 	  }
 
 

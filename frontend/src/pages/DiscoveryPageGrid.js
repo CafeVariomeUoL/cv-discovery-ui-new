@@ -112,8 +112,9 @@ export default class DiscoveryPageGrid extends Component {
   };
 
   componentDidMount() {
+    const id = window.id ? window.id : this.props.match.params.id;
     fetch(
-      process.env.REACT_APP_API_URL+"/discovery/loadSettings?id="+this.props.match.params.id, {
+      process.env.REACT_APP_API_URL+"/discover/loadSettings/"+id, {
         headers: {
           "Access-Control-Allow-Origin": "*",
           'Content-Type': 'application/json',
@@ -174,15 +175,18 @@ export default class DiscoveryPageGrid extends Component {
 
   renderFromComponent = (key, item) => {
     const TypeTag = typeMap[item.type].type
+    const id = window.id ? window.id : this.props.match.params.id;
     return <TypeTag 
-      setQuery={this.storeQuery(`${key}`)} 
+      setQuery={this.storeQuery(`${key}`)}
+      settings_id={id} 
       // onHeightChange={this.componentHeightChanged(`${key}`)} 
       {...item.data}/>
   }
 
   renderBuilderFromComponent = (key, item) => {
     const TypeTag = typeMap[item.type].settings_type
-    return <TypeTag setData={this.storeData(`${key}`)} data={item.data} settings_id={this.props.match.params.id}/>
+    const id = window.id ? window.id : this.props.match.params.id;
+    return <TypeTag setData={this.storeData(`${key}`)} data={item.data} settings_id={id}/>
   }
 
 
@@ -381,8 +385,9 @@ export default class DiscoveryPageGrid extends Component {
   closeSettings = () => this.setState({ settingsModalKey: null })
 
   saveSettings = () => {
+    const id = window.id ? window.id : this.props.match.params.id;
     fetch(
-      process.env.REACT_APP_API_URL+"/discovery/saveSettings", {
+      process.env.REACT_APP_API_URL+"/discover/saveSettings/"+id, {
         method:'POST',
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -390,12 +395,12 @@ export default class DiscoveryPageGrid extends Component {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({id: this.props.match.params.id, data:{components:this.state.components, layouts:this.state.layouts}})
+        body: JSON.stringify({components:this.state.components, layouts:this.state.layouts})
       })
       .then(res => res.json())
       .then(
         (result) => {
-          console.log(JSON.stringify({id: this.props.match.params.id, data:{components:this.state.components, layouts:this.state.layouts}}));
+          // console.log(JSON.stringify({id: this.props.match.params.id, data:{components:this.state.components, layouts:this.state.layouts}}));
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow

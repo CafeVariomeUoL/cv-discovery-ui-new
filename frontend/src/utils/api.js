@@ -1,6 +1,6 @@
 
-export const getAttributes = (callback, callback_err) => fetch(
-  process.env.REACT_APP_API_URL+"/discovery/getAttributes", {
+export const getAttributes = (id, callback, callback_err) => fetch(
+  process.env.REACT_APP_API_URL+"/discover/getAttributes/"+id, {
   headers: {
     "Access-Control-Allow-Origin": "*",
     'Content-Type': 'application/json',
@@ -11,8 +11,8 @@ export const getAttributes = (callback, callback_err) => fetch(
   .then(res => res.json())
   .then(callback, callback_err);
 
-export const getAttributeValues = (attribute, callback, callback_err) => fetch(
-  process.env.REACT_APP_API_URL+"/discovery/getAttributeValues", {
+export const getAttributeValues = (id, attribute, callback, callback_err) => fetch(
+  process.env.REACT_APP_API_URL+"/discover/getAttributeValues/"+id, {
     method:'POST',
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -28,7 +28,7 @@ export const getAttributeValues = (attribute, callback, callback_err) => fetch(
 
 
 export const getAttributeValuesLimitOffset = (attribute, limit, offset, callback, callback_err) => fetch(
-  process.env.REACT_APP_API_URL+"/discovery/getAttributeValues", {
+  process.env.REACT_APP_API_URL+"/discover/getAttributeValues", {
     method:'POST',
     headers: {
       'Access-Control-Allow-Origin': '*',

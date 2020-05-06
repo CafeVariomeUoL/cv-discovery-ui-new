@@ -23,7 +23,7 @@ export default class PickerBuilderSettings extends React.Component {
 
 
 	componentDidMount() {
-		getAttributes(
+		getAttributes(this.props.settings_id,
 	        (result) => {
 	          this.setState({
 	            attributes: result.map(e => {return {label:mkLabel(e.attribute), value:e.attribute}})

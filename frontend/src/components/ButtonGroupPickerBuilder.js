@@ -33,7 +33,7 @@ export default class ButtonGroupPickerBuilder extends React.Component {
 
 	loadProps(nextProps, force = false){
 		if((force && nextProps.attribute) || (nextProps.attribute && this.props.attribute !== nextProps.attribute)) {
-			getAttributeValues(nextProps.attribute,
+			getAttributeValues(this.props.settings_id, nextProps.attribute,
 		        (result) => {
 		          if(result) this.setState((oldState) => 
 	          		{return {...oldState, options: result}});
