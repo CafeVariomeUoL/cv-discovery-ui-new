@@ -238,7 +238,10 @@ export default class DiscoveryPageGrid extends Component {
         // instead of a catch() block so that we don't swallow
         // exceptions from actual bugs in components.
         (error) => {
-          console.log(error)
+          this.setState({
+            error: error.error,
+            showLoadingState: false
+          });
         }
       )
   }
