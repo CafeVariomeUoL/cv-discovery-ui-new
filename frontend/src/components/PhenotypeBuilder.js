@@ -33,6 +33,10 @@ export default class PhenotypeBuilder extends React.Component {
 	componentWillReceiveProps(nextProps){
 		this.loadProps(nextProps)
 	}
+	
+	componentWillUnmount() {
+	    this.props.deleteQuery();
+	}
 
 	loadProps(nextProps, force = false){
 		if((force && nextProps.attribute) || (nextProps.attribute && this.props.attribute !== nextProps.attribute)) {

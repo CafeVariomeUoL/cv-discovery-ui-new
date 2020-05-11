@@ -62,6 +62,10 @@ export default class ValueBuilder extends React.Component {
 
   }
 
+  componentWillUnmount() {
+    this.props.deleteQuery();
+  }
+
 
   mkQuery = state => {
     return {

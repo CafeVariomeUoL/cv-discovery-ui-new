@@ -125,7 +125,12 @@ async def query(payload: Query):
     # print(payload.query)
     srcs = [eavs] + srcs
 
-    query = select([func.count(func.distinct(eavs.c.subject_id))])
+
+    if payload.result_type and payload.result_type == 'full':
+        query = select([func.distinct(eavs.c.subject_id), eavs.c.data])
+    else:
+        query = select([func.count(func.distinct(eavs.c.subject_id))])
+    
     for s in srcs:
         query = query.select_from(s)
     
@@ -133,4 +138,8 @@ async def query(payload: Query):
 
     print(query.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
     res = await database.fetch_all(query=query)
-    return {'count': res[0]['count_1']}
+
+    if payload.result_type and payload.result_type == 'full':
+        return {'full': [row['data'] for row in res]}
+    else:
+        return {'count': res[0]['count_1']}

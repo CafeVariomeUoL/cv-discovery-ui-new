@@ -38,6 +38,7 @@
     "prop-types": "^15.6.0",
     "react": "^16.8.2",
     "react-bootstrap-table-next": "^4.0.0",
+    "react-bootstrap-table2-editor": "^1.4.0",
     "react-collapsible": "^2.7.0",
     "react-dom": "^16.8.4",
     "react-grid-layout": "^0.18.3",

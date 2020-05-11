@@ -26,6 +26,10 @@ export default class SliderBetweenBuilder extends React.Component {
     this.props.setQuery(this.mkQuery(this.state));
   }
 
+  componentWillUnmount() {
+      this.props.deleteQuery();
+  }
+
   handleChange = e => {
     const newState = {
       value1: e[0],

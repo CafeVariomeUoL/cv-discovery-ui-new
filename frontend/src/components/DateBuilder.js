@@ -95,6 +95,10 @@ export default class ValueBuilder extends React.Component {
 
 	}
 
+	componentWillUnmount() {
+	    this.props.deleteQuery();
+	}
+
 	handleChange = prop_name => e =>  {
 		const newState = {...this.state};
 		if (prop_name === 'op' || !this.props.arbitraryInput){

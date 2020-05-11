@@ -24,6 +24,10 @@ export default class BetweenBuilder extends React.Component {
     this.props.setQuery(this.mkQuery(this.state));
   }
 
+  componentWillUnmount() {
+    this.props.deleteQuery();
+  }
+
   handleChange = prop_name => e =>  {
     const newState = {...this.state};
     newState[prop_name] = e.target.value;

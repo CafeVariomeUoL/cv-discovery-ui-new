@@ -11,7 +11,7 @@ import ContentWrapper from '../components/ContentWrapper';
 import PageTitle from '../components/PageTitle';
 import { mkLabel, getType, mergeExists, removeEmpty, humanReadableQuery, generateFinalQuery, pruneTree, mkQueryTree, collectQueries } from '../utils/utils'
 
-import { typeMap } from '../components/types'
+import { typeMap, resultsTypeMap } from '../components/types'
 import { getUserIsAdminOf } from '../utils/api'
 
 import styled from 'styled-components';
@@ -27,7 +27,6 @@ import CrossIcon from '@atlaskit/icon/glyph/cross';
 import EditorSettingsIcon from '@atlaskit/icon/glyph/editor/settings';
 
 import { AkCode, AkCodeBlock } from '@atlaskit/code';
-import BootstrapTable from 'react-bootstrap-table-next';
 import Collapsible from 'react-collapsible';
 
 import { CSSTransition } from 'react-transition-group';
@@ -36,16 +35,9 @@ import './DiscoveryPageGrid.css'
 
 const queryBuilders = Object.keys(typeMap).filter(e => 'settings_type' in typeMap[e]).map(e => {return {value:e, label: typeMap[e].label}})
 
+const resultViews = Object.keys(resultsTypeMap).map(e => {return {value:e, label: resultsTypeMap[e].label}})
+
 const ResponsiveGridLayout = WidthProvider(Responsive);
-
-
-const columns = [{
-  dataField: 'source',
-  text: 'Source'
-}, {
-  dataField: 'counts',
-  text: 'Counts'
-}];
 
 
 const grid_settings = {
@@ -65,13 +57,15 @@ export default class DiscoveryPageGrid extends Component {
     counter:0,
     title: 'Query builder',
     settingsModalKey:null,
+    resultViewSettingsModal:false,
     layouts: {lg:[], md:[], sm:[], xs:[], xxs: []},
     // currentBreakpoint: 'lg',
     components: {},
     componentHeights:{},
     componentHeightsChanged:false,
     queries: {},
-    results: [],
+    result_view: {type: 'CountResultView', query_tag:'count'},
+    result_data: {},
     isLoaded: false,
     debug: false,
     edit: false,
@@ -122,7 +116,8 @@ export default class DiscoveryPageGrid extends Component {
               title: parsed.title?parsed.title:'<Title>',
               components: parsed.components,
               layouts: parsed.layouts,
-              counter: maxVal+1
+              counter: maxVal+1,
+              result_view: parsed.result_view ? parsed.result_view : this.state.result_view,
             });
           } else {
             this.setState({
@@ -157,20 +152,40 @@ export default class DiscoveryPageGrid extends Component {
   }
 
 
-  renderFromComponent = (key, item) => {
+  renderBuilderFromComponent = (key, item) => {
     const TypeTag = typeMap[item.type].type
     const id = window.id ? window.id : this.props.match.params.id;
     return <TypeTag 
       setQuery={this.storeQuery(`${key}`)}
+      deleteQuery={this.deleteQuery(`${key}`)}
       settings_id={id} 
       // onHeightChange={this.componentHeightChanged(`${key}`)} 
       {...item.data}/>
   }
 
-  renderBuilderFromComponent = (key, item) => {
+
+  renderResult = (item, data) => {
+    const TypeTag = resultsTypeMap[item.type].type
+    return <TypeTag 
+      results={data}
+      {...item.data}/>
+  }
+
+
+  renderResultSettings = (item) => {
+    const TypeTag = resultsTypeMap[item.type].settings_type;
+    const id = window.id ? window.id : this.props.match.params.id;
+    return <TypeTag 
+      setData={(data) => {this.setState({result_view:{...this.state.result_view, data:data}})}} 
+      data={item.data? item.data : {}} 
+      settings_id={id}/>
+  }
+
+
+  renderBuilderSettingsFromComponent = (key, item) => {
     const TypeTag = typeMap[item.type].settings_type
     const id = window.id ? window.id : this.props.match.params.id;
-    return <TypeTag setData={this.storeData(`${key}`)} data={item.data} settings_id={id}/>
+    return <TypeTag setData={this.storeBuilderSettings(`${key}`)} data={item.data} settings_id={id}/>
   }
 
 
@@ -183,6 +198,19 @@ export default class DiscoveryPageGrid extends Component {
     }
   }
 
+
+  deleteQuery = (id) => {
+    return () => {
+      this.setState((prevState,_) => {
+        const newQueries = {... prevState.queries};
+        delete newQueries[id];
+        return {
+          queries: newQueries,
+        }
+      });
+    }
+  }
+
   componentHeightChanged = (id) => {
     return (height) => {
       if(this.state.componentHeights[id] !== height)
@@ -190,7 +218,7 @@ export default class DiscoveryPageGrid extends Component {
     }
   }
 
-  storeData = (id) => {
+  storeBuilderSettings = (id) => {
     return (data) => {
       var newComponents = {...this.state.components}
       newComponents[id].data = data
@@ -202,7 +230,7 @@ export default class DiscoveryPageGrid extends Component {
   // we only want to update if we are not in the modal dialog, since any up update will automatically close it
   shouldComponentUpdate(nextProps, nextState) { 
     // console.log(nextState.settingsModalKey, this.state.settingsModalKey)
-    return (!nextState.settingsModalKey || nextState.settingsModalKey !== this.state.settingsModalKey);
+    return (!nextState.settingsModalKey || !nextState.resultViewSettingsModal || nextState.settingsModalKey !== this.state.settingsModalKey);
   }
 
 
@@ -222,7 +250,7 @@ export default class DiscoveryPageGrid extends Component {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({'query': generateFinalQuery(Object.values(this.state.queries))})
+        body: JSON.stringify({'query': generateFinalQuery(Object.values(this.state.queries)), result_type: this.state.result_view.query_tag})
       })
       .then(res => res.json())
       .then(
@@ -233,7 +261,7 @@ export default class DiscoveryPageGrid extends Component {
           //   return {id:i, source: Object.keys(j)[0], counts: j[Object.keys(j)[0]].length}
           // });
           this.setState({
-            results: [{id:0, source:'', counts: result.count}],
+            result_data: result,
             showLoadingState: false
           });
         },
@@ -265,50 +293,6 @@ export default class DiscoveryPageGrid extends Component {
   onLayoutChange = (layout: Layout, layouts: {[string]: Layout}) => {
     this.setState({layouts: layouts});
   }
-
-  // onWidthChange = (containerWidth: number, margin: [number, number], cols: number, containerPadding: [number, number]) => {
-  //   // console.log(this.state.currentBreakpoint, containerWidth, this.state.componentHeights);
-  //   // if(this.state.componentHeightsChanged){
-  //   // console.log(this.state.currentBreakpoint, containerWidth, this.state.componentHeights);
-  //   if(!this.state.edit) this.setState((oldState) => {
-
-  //     const newLayout = oldState.layouts[oldState.currentBreakpoint].map((e) => {
-  //       if(oldState.componentHeights[e.i]) console.log(e.i, Math.round(oldState.componentHeights[e.i]/(rowHeight+10)))
-  //       return {...e, moved:true, h: this.state.componentHeights[e.i]?Math.round(oldState.componentHeights[e.i]/(rowHeight+10)) : e.h }
-  //     })
-
-
-  //     return {
-  //       componentHeightsChanged: false, 
-  //       layouts: {
-  //         ...oldState.layouts,
-  //         [oldState.currentBreakpoint]: cleanup(newLayout, Object.keys(oldState.componentHeights))
-  //       }
-  //     }
-  //   })
-  // }
-
-
-  // onBreakpointChange = (newBreakpoint: string, newCols: number) => {
-  //   this.setState({currentBreakpoint: newBreakpoint})
-
-  //   if(!this.state.edit) this.setState((oldState) => {
-
-  //     const newLayout = oldState.layouts[oldState.currentBreakpoint].map((e) => {
-  //       if(oldState.componentHeights[e.i]) console.log(e.i, Math.round(oldState.componentHeights[e.i]/(rowHeight+10)))
-  //       return {...e, moved:true, h: this.state.componentHeights[e.i]?Math.round(oldState.componentHeights[e.i]/(rowHeight+10)) : e.h }
-  //     })
-
-
-  //     return {
-  //       componentHeightsChanged: false, 
-  //       layouts: {
-  //         ...oldState.layouts,
-  //         [oldState.currentBreakpoint]: cleanup(newLayout, Object.keys(oldState.componentHeights))
-  //       }
-  //     }
-  //   })
-  // }
 
   toggleEdit = () => {
     this.setState((oldState,_) => {
@@ -370,6 +354,9 @@ export default class DiscoveryPageGrid extends Component {
 
   openSettings = (key) => () => this.setState({ settingsModalKey: key })
 
+  toggleResultViewSettings = (visibility) => this.setState({resultViewSettingsModal: visibility})
+
+
   closeSettings = () => this.setState({ settingsModalKey: null })
 
   saveSettings = () => {
@@ -383,7 +370,7 @@ export default class DiscoveryPageGrid extends Component {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({title: this.state.title, components:this.state.components, layouts:this.state.layouts})
+        body: JSON.stringify({title: this.state.title, components:this.state.components, layouts:this.state.layouts, result_view:this.state.result_view})
       })
       .then(res => res.json())
       .then(
@@ -418,18 +405,18 @@ export default class DiscoveryPageGrid extends Component {
       const l = Object.keys(this.state.layouts)[i];
       newLayouts[l] = lgNodes;
     }
-    this.setState({layouts: newLayouts})//, this.gridRef.current.onWindowResize);
+    this.setState({layouts: newLayouts})
   }
 
   render() {
 
-    const { title, error, info, debug, isLoaded, layouts, components, canEdit, edit, editSize, maxWidthEdit, settingsModalKey } = this.state;
+    const { title, error, info, debug, isLoaded, layouts, components, canEdit, edit, editSize, maxWidthEdit, settingsModalKey,
+      result_view, result_data, resultViewSettingsModal } = this.state;
 
     const items = Object.keys(components).map((k) => { 
         return (
           <div 
             key={k} 
-            // style={{borderStyle:'dotted'}}
           >
           <CSSTransition
             in={edit}
@@ -457,7 +444,7 @@ export default class DiscoveryPageGrid extends Component {
                 </div>
               </CSSTransition>
               <div style={{padding:'5px'}}>
-                {this.renderFromComponent(k, components[k])}
+                {this.renderBuilderFromComponent(k, components[k])}
               </div>
             </div>
           </CSSTransition>
@@ -499,7 +486,7 @@ export default class DiscoveryPageGrid extends Component {
               name="label"
               style={{fontSize:'29px', height:'30px'}}
               defaultValue={title}
-              onChange={(e) => {this.setState({title: e.target.value})}}/></div>:<PageTitle style={{paddingTop: '10px'}}>{title}</PageTitle>}
+              onChange={(e) => {this.setState({title: e.target.value})}}/></div>:<PageTitle style={{paddingTop: '12px'}}>{title}</PageTitle>}
             {canEdit && <span style={{paddingLeft:'15px', marginTop:'13px'}}>
               <Button 
                 appearance={!edit?"subtle":"primary"} 
@@ -572,9 +559,8 @@ export default class DiscoveryPageGrid extends Component {
           >
             <div className="discovery-results">
               <Button isLoading={this.state.showLoadingState} appearance="primary" onClick={this.runQuery}>Run query</Button>
-              <h4 style={{paddingBottom:'10px'}}>Results:</h4>
-              <BootstrapTable keyField='id' data={ this.state.results } columns={ columns } />
-           
+              <h4 style={{paddingTop:'2em', paddingBottom:'10px'}}>Results:</h4>
+              {this.renderResult(result_view, result_data)}           
               {debug &&
               <div className="discovery-results">
                 <h4 style={{paddingTop:'30px', paddingBottom:'10px'}}>Human readable Query:</h4>
@@ -610,12 +596,33 @@ export default class DiscoveryPageGrid extends Component {
               onChange={(k) => this.addItem(k.value)}
               placeholder="Select a box to add" />
 
+
+            <h4 style={{paddingBottom:'10px'}}>Select result view:</h4>
+            <div style={{
+                display:'flex', 
+                justifyContent: 'stretch'}
+            }>
+              <div style={{flexGrow: 1}}>
+              <Select
+              options={resultViews}
+              defaultValue={{value: result_view.type, label: resultsTypeMap[result_view.type].label}}
+              onChange={(k) => this.setState({result_view: {type:k.value, query_tag:resultsTypeMap[k.value].query_tag}})}
+              placeholder="Select a box to add" /></div>
+
+            {resultsTypeMap[result_view.type].settings_type != null && 
+            <div style={{paddingLeft:'5px'}}>
+            <Button style={{height:'40px'}} appearance={'subtle'} spacing="none" onClick={() => this.toggleResultViewSettings(true)}>
+              <EditorSettingsIcon/>
+            </Button>
+            </div>}
+          </div>
+
             {debug && 
             <div>
               <h4 style={{paddingTop:'30px', paddingBottom:'10px'}}>Tree:</h4>
               <AkCodeBlock 
                 language="json" 
-                text={JSON.stringify({components:this.state.components, layouts:this.state.layouts}, null, 2)} 
+                text={JSON.stringify({components:this.state.components, layouts:this.state.layouts, result_view:this.state.result_view}, null, 2)} 
                 showLineNumbers={false}/>
             </div>}
           </div>
@@ -627,7 +634,7 @@ export default class DiscoveryPageGrid extends Component {
             <ModalDialog
               heading={`Settings - ${typeMap[components[settingsModalKey].type].label}`}
               width="large"
-              onClose={() =>{ this.closeSettings() } }
+              onClose={this.closeSettings}
               components={{
                 Container: ({ children, className }: ContainerProps) => (
                   <div className={className}>
@@ -644,11 +651,38 @@ export default class DiscoveryPageGrid extends Component {
                 )
               }}
             >
-              {this.renderBuilderFromComponent(settingsModalKey, components[settingsModalKey])}
+              {this.renderBuilderSettingsFromComponent(settingsModalKey, components[settingsModalKey])}
             </ModalDialog>
           )}
         </ModalTransition>
        
+
+       <ModalTransition>
+          {resultViewSettingsModal && (
+            <ModalDialog
+              heading={`Settings - ${resultsTypeMap[result_view.type].label}`}
+              width="large"
+              onClose={() =>{ this.toggleResultViewSettings(false) } }
+              components={{
+                Container: ({ children, className }: ContainerProps) => (
+                  <div className={className}>
+                    {children}
+                  </div>
+                ),
+                Footer: (props: FooterProps) => (
+                  <ModalFooter showKeyline={props.showKeyline}>
+                    <span />
+                    <Button appearance="primary" onClick={() => this.toggleResultViewSettings(false)}>
+                      Done
+                    </Button>
+                  </ModalFooter>
+                )
+              }}
+            >
+              {this.renderResultSettings(result_view)}
+            </ModalDialog>
+          )}
+        </ModalTransition>
         </div>
       </Page>
     );

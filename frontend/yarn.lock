@@ -10175,6 +10175,11 @@ react-bootstrap-table-next@^4.0.0:
     react-transition-group "^4.2.0"
     underscore "1.9.1"
 
+react-bootstrap-table2-editor@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/react-bootstrap-table2-editor/-/react-bootstrap-table2-editor-1.4.0.tgz#2d73de4a88d23865e966aeb164abf78d71b17e60"
+  integrity sha512-18yDCwsVt3b5Fwy0jidNDAbUA6vC7k9JjQVmykazWSw8G115+mmZnhe9/7RO7jAu8X7lhmobwlNwECzwPu1nDg==
+
 react-clientside-effect@^1.2.0:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/react-clientside-effect/-/react-clientside-effect-1.2.2.tgz#6212fb0e07b204e714581dd51992603d1accc837"
@@ -10234,6 +10239,11 @@ react-draggable@^4.0.0, react-draggable@^4.0.3:
   dependencies:
     classnames "^2.2.5"
     prop-types "^15.6.0"
+
+react-editable-title@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/react-editable-title/-/react-editable-title-1.2.2.tgz#d2dfb830be1cb20a3a89989109f1cce4a1a1056c"
+  integrity sha512-VG0yUueOUrmIudyNajemtPtI3S7AB3MO1dAzNTmIxoO2ZjneULgR+R2nBwdAZ/IxDjJOJoFwJcPqxhkdSB2LUg==
 
 react-error-overlay@^6.0.6:
   version "6.0.6"

@@ -71,3 +71,4 @@ GroupQuery.update_forward_refs()
 
 class Query(BaseModel):
     query: Union[BaseQuery, GroupQuery]
+    result_type: Optional[str]

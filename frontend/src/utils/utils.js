@@ -225,6 +225,21 @@ export const getType = (o) => {
 }
 
 
+export const getValueFromPath = (o, path) => {
+  switch(typeof path){
+    case "object": 
+      if(Array.isArray(path)){
+        return o.map((e) => getValueFromPath(e, path[0])).flat();
+      } else {
+        // console.log("got here:", path, Object.keys(path)[0], Object.keys(path)[0] in o)
+        return Object.keys(path)[0] in o ? getValueFromPath(o[Object.keys(path)[0]], path[Object.keys(path)[0]]) : [];
+      }
+    default:
+      return [o]
+  }
+}
+
+
 export const cast = (o,t) => {
   switch(t){
     case "int": return parseInt(o)

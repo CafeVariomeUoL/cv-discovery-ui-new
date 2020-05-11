@@ -35,6 +35,10 @@ export default class PickerBuilder extends React.Component {
 		this.loadProps(nextProps)
 	}
 
+	componentWillUnmount() {
+	    this.props.deleteQuery();
+	}
+
 	loadProps(nextProps, force = false){
 		if((force && nextProps.attribute) || (nextProps.attribute && this.props.attribute !== nextProps.attribute)) {
 			getAttributeValues(this.props.settings_id, nextProps.attribute,
