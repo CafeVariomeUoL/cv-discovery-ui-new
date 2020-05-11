@@ -56,7 +56,7 @@ export default class DiscoveryPageGrid extends Component {
   state = {
     counter:0,
     title: 'Query builder',
-    settingsModalKey:null,
+    componentSettingsModalKey:null,
     resultViewSettingsModal:false,
     layouts: {lg:[], md:[], sm:[], xs:[], xxs: []},
     // currentBreakpoint: 'lg',
@@ -229,8 +229,9 @@ export default class DiscoveryPageGrid extends Component {
 
   // we only want to update if we are not in the modal dialog, since any up update will automatically close it
   shouldComponentUpdate(nextProps, nextState) { 
-    // console.log(nextState.settingsModalKey, this.state.settingsModalKey)
-    return (!nextState.settingsModalKey || !nextState.resultViewSettingsModal || nextState.settingsModalKey !== this.state.settingsModalKey);
+    // console.log(nextState.componentSettingsModalKey, this.state.componentSettingsModalKey)
+    return ((!nextState.componentSettingsModalKey || nextState.componentSettingsModalKey !== this.state.componentSettingsModalKey) && 
+            (!nextState.resultViewSettingsModal || nextState.resultViewSettingsModal !== this.state.resultViewSettingsModal));
   }
 
 
@@ -352,12 +353,12 @@ export default class DiscoveryPageGrid extends Component {
 
 
 
-  openSettings = (key) => () => this.setState({ settingsModalKey: key })
+  openSettings = (key) => () => this.setState({ componentSettingsModalKey: key })
 
   toggleResultViewSettings = (visibility) => this.setState({resultViewSettingsModal: visibility})
 
 
-  closeSettings = () => this.setState({ settingsModalKey: null })
+  closeSettings = () => this.setState({ componentSettingsModalKey: null })
 
   saveSettings = () => {
     const id = window.id ? window.id : this.props.match.params.id;
@@ -410,7 +411,7 @@ export default class DiscoveryPageGrid extends Component {
 
   render() {
 
-    const { title, error, info, debug, isLoaded, layouts, components, canEdit, edit, editSize, maxWidthEdit, settingsModalKey,
+    const { title, error, info, debug, isLoaded, layouts, components, canEdit, edit, editSize, maxWidthEdit, componentSettingsModalKey,
       result_view, result_data, resultViewSettingsModal } = this.state;
 
     const items = Object.keys(components).map((k) => { 
@@ -630,9 +631,9 @@ export default class DiscoveryPageGrid extends Component {
 
 
          <ModalTransition>
-          {settingsModalKey && (
+          {componentSettingsModalKey && (
             <ModalDialog
-              heading={`Settings - ${typeMap[components[settingsModalKey].type].label}`}
+              heading={`Settings - ${typeMap[components[componentSettingsModalKey].type].label}`}
               width="large"
               onClose={this.closeSettings}
               components={{
@@ -651,7 +652,7 @@ export default class DiscoveryPageGrid extends Component {
                 )
               }}
             >
-              {this.renderBuilderSettingsFromComponent(settingsModalKey, components[settingsModalKey])}
+              {this.renderBuilderSettingsFromComponent(componentSettingsModalKey, components[componentSettingsModalKey])}
             </ModalDialog>
           )}
         </ModalTransition>
