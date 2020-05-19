@@ -46,6 +46,25 @@ export const mkAttrQuery = (attr, attr_acc, op, val) => {
 
 
 
+// generates an exists query every time it encounters an array
+export const mkAttrQuerySet = (attr, attr_acc) => {
+  switch(typeof attr){
+    case "object": 
+      if(Array.isArray(attr)){
+        const [r_set, r_q] = mkAttrQuerySet(attr[0], (x) => x);
+        if(r_set === null) return [attr_acc("array"), r_q]
+        else return [r_set, {operator:"set", from:r_set, path:r_q}]
+      } else {
+        const k = Object.keys(attr)[0];
+        return mkAttrQuerySet(attr[Object.keys(attr)[0]], (v) => attr_acc({[k] : v}))
+      }
+    default:
+      return [null, attr_acc(attr)]
+  }
+}
+
+
+
 export const mergeExists = (o) => {
   // console.log("got:", o)
   switch(o.operator){
@@ -53,6 +72,8 @@ export const mergeExists = (o) => {
       var o_new = {...o}
       if('children' in o) o_new.children = o_new.children.map(mergeExists)
       return o_new
+    case "similarity": 
+      return o
     case "and":
       var o_new = {...o}
       if('children' in o && !o.dontGroupExists) o_new.children = mergeExistsInAnd(o_new.children.map(mergeExists))
@@ -120,12 +141,13 @@ export const mergeExistsInAnd = (lst) => {
 
 export const removeEmpty = (o) => {
   if (o.operator === "and" || o.operator === "or" || o.operator === "exists") {
+    console.log("o:", o)
     var new_children = []
     for (var i = 0; i < o.children.length; i++) {
       if ("attribute" in o.children[i] && o.children[i].value && o.children[i].value !== '') new_children.push(o.children[i])
       else if (!("attribute" in o.children[i])) {
         const res = removeEmpty(o.children[i]);
-        if(res.children.length > 0) new_children.push(res)
+        if(res.children && res.children.length > 0 || res.operator === "similarity") new_children.push(res)
       }
     }
     return {...o, children: new_children}
@@ -140,6 +162,8 @@ export const humanReadableQuery = (q) => {
     case "and": return "(" + q.children.map(humanReadableQuery).join(" ∧\n ") + ")"
     case "or": return  "(" +  q.children.map(humanReadableQuery).join(" ∨\n ") + ")"
     case "exists": return "(∃ x ∈ " + mkLabel(q.from) + " . " + q.children.map((x) => {return humanReadableQuery(insertAttr(x))}).join("") + ")"
+    case "similarity": return "(|" + humanReadableQuery(q.from) + " ⋂ sim({" + q.hpos.join(",") + "}, "+ q.similarity +")| ≥ " + q.match + ")"
+    case "set": return "{ x" + (mkLabel(q.path) ? "->" : "") + mkLabel(q.path) + (q.from ? " | x ∈ " + mkLabel(q.from) +"}" : "}")
     case "is": return "(" + mkLabel(q.attribute) + " = " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
     case "is not": return "(" + mkLabel(q.attribute) + " ≠ " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"
     case "<": return "(" + mkLabel(q.attribute) + " < " + (q.value === "" ? '_' : JSON.stringify(q.value)) + ")"

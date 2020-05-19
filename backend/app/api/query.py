@@ -1,7 +1,7 @@
 import os, shutil, json
 
 from fastapi import APIRouter, File, UploadFile
-from app.db import eavs, database
+from app.db import eavs, hpo_sims, database
 from app.api.models import *
 from app.utils.paths import map_, get_leaf
 from sqlalchemy import and_, or_, func, exists, select, column, Integer, Float
@@ -24,7 +24,7 @@ def get_type(eav):
 def mkPathStm(stm, eav, getJSONobject = False):
     if type(eav) is dict:
         if getJSONobject or type(eav[next(iter(eav))]) is dict:
-            _, res = mkPathStm(stm.op('->')(next(iter(eav))), eav[next(iter(eav))])
+            _, res = mkPathStm(stm.op('->')(next(iter(eav))), eav[next(iter(eav))], getJSONobject)
             
         else:
             _, res = mkPathStm(stm.op('->>')(next(iter(eav))), eav[next(iter(eav))])
@@ -87,7 +87,7 @@ def mkAttributeQuery(stm, eav, val, ty, op):
 
 
 def basicOrGroupQuery(s):
-    def f(e : Union[BaseQuery, GroupQuery]):
+    def f(e : Union[BaseQuery, GroupQuery, SimilarityQuery]):
         if isinstance(e, IsQuery):
             return [] , s.op('@>')(json.dumps(e.attribute))
         if isinstance(e, BaseQuery):
@@ -95,6 +95,8 @@ def basicOrGroupQuery(s):
             return [] , r
         if isinstance(e, GroupQuery):
             return mkGroupQuery(s, e)
+        if isinstance(e, SimilarityQuery):
+            return [], None
     return f
 
 
@@ -102,12 +104,12 @@ def basicOrGroupQuery(s):
 def mkGroupQuery(source, qg: GroupQuery):
     if (qg.operator == BoolOp.andOp):
         res = list(map(basicOrGroupQuery(source), qg.children))
-        subExprs = [e for _,e in res]
+        subExprs = [e for _,e in res if e is not None]
         sources = [s for src,_ in res for s in src]
         return sources, and_(*subExprs)
     elif (qg.operator == BoolOp.orOp):
         res = list(map(basicOrGroupQuery(source), qg.children))
-        subExprs = [e for _,e in res]
+        subExprs = [e for _,e in res if e is not None]
         sources = [s for src,_ in res for s in src]
         return sources, or_(*subExprs)
     elif (qg.operator == Quantifier.exists):
@@ -115,6 +117,86 @@ def mkGroupQuery(source, qg: GroupQuery):
         tmp = func.jsonb_array_elements(arr).alias()
         res_ls, subExpr = basicOrGroupQuery(column(tmp.name))(qg.children[0])
         return ([tmp] + res_ls), subExpr
+
+
+
+
+
+
+def simQuery(q, e : Union[BaseQuery, GroupQuery, SimilarityQuery]):
+    if isinstance(e, IsQuery):
+        return q
+    if isinstance(e, BaseQuery):
+        return q
+    if isinstance(e, GroupQuery):
+        simQ = next(x for x in e.children if isinstance(x, SimilarityQuery))
+        if(e.operator == BoolOp.andOp):
+            return q.intersect(mkSimQuery(simQ))
+        if(e.operator == BoolOp.orOp):
+            return q.union(mkSimQuery(simQ))
+    if isinstance(e, SimilarityQuery):
+        return mkSimQuery(e)
+
+
+
+
+
+
+def mkSetQuery(q: SetQuery):
+    if isinstance(q.from_, SetQuery):
+        ss, r = mkSetQuery(q.from_)
+        _, arr = mkPathStm(column(ss[-1]).name, r, True)
+        src = func.jsonb_array_elements(arr).alias()
+    else:
+        ss = []
+        _, arr = mkPathStm(eavs.c.data, q.from_, True)
+        src = func.jsonb_array_elements(arr).alias()
+
+    _, r = mkPathStm(column(src.name), q.path)
+
+    return (ss + [src]), r
+
+
+    # q = select([r]).where(eavs.c.id == al.c.id)
+    # print(q.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
+
+
+
+def mkSimQuery(qs: SimilarityQuery):
+    print(qs)
+
+    srcs, setQ = mkSetQuery(qs.from_)
+
+
+
+    q = select([eavs.c.subject_id, eavs.c.data])
+
+    for s in [eavs] + srcs:
+        q = q.select_from(s)
+
+    q = q.where(
+            setQ.in_(
+                select([hpo_sims.c.target]).where(and_(hpo_sims.c.source.in_(qs.hpos), hpo_sims.c.rel >= qs.similarity))
+            )
+        ).group_by(eavs.c.subject_id, eavs.c.data).having(func.count(eavs.c.subject_id) >= qs.match)
+
+
+
+
+    # select([func.count()]).select_from(select([setQ])
+    #     .where(eavs.c.id == alias.c.id)
+    #     .intersect(select([hpo_sims.c.target])
+    #         .where(and_(hpo_sims.c.source.in_(qs.hpos), hpo_sims.c.rel >= qs.similarity))).alias()).as_scalar() >=  qs.match
+
+
+    #          # >= qs.match
+ 
+    return q
+    # print(q.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
+
+  
+
+
 
 
 @router.post("/query")
@@ -126,15 +208,14 @@ async def query(payload: Query):
     srcs = [eavs] + srcs
 
 
-    if payload.result_type and payload.result_type == 'full':
-        query = select([func.distinct(eavs.c.subject_id), eavs.c.data])
-    else:
-        query = select([func.count(func.distinct(eavs.c.subject_id))])
-    
+    query = select([func.distinct(eavs.c.subject_id), eavs.c.data])
+
     for s in srcs:
         query = query.select_from(s)
     
     query = query.where(stmt)
+
+    query = simQuery(query, payload.query)
 
     print(query.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
     res = await database.fetch_all(query=query)
@@ -142,4 +223,4 @@ async def query(payload: Query):
     if payload.result_type and payload.result_type == 'full':
         return {'full': [row['data'] for row in res]}
     else:
-        return {'count': res[0]['count_1']}
+        return {'count': len(res)}

@@ -36,6 +36,17 @@ class Quantifier(str, Enum):
     exists = 'exists'
 
 
+
+
+class SimilarityOp(str, Enum):
+    similarity = 'similarity'
+
+
+class SetOp(str, Enum):
+    set = 'set'
+
+
+
 class BaseBoolOp(str, Enum):
     isOp = 'is'
     isLikeOp = 'is like'
@@ -57,7 +68,7 @@ class IsQuery(BaseModel):
 
 
 class GroupQuery(BaseModel):
-    children: List[Union[BaseQuery, 'GroupQuery']]
+    children: List[Union[BaseQuery,SimilarityQuery, 'GroupQuery']]
     operator: Union[BoolOp, Quantifier]
     from_: Optional[dict]
 
@@ -66,9 +77,36 @@ class GroupQuery(BaseModel):
         'from_': 'from'
         }
 
+class SetQuery(BaseModel):
+    operator: SetOp
+    from_: Union[dict, 'SetQuery']
+    path: Union[dict, str]
+
+    class Config:
+        fields = {
+        'from_': 'from'
+        }
+
+
+
+class SimilarityQuery(BaseModel):
+    hpos: List[str]
+    match: int
+    similarity: float
+    operator: SimilarityOp
+    from_: SetQuery
+
+    class Config:
+        fields = {
+        'from_': 'from'
+        }
+
 GroupQuery.update_forward_refs()
+
+SetQuery.update_forward_refs()
+
 
 
 class Query(BaseModel):
-    query: Union[BaseQuery, GroupQuery]
+    query: Union[BaseQuery, GroupQuery, SimilarityQuery]
     result_type: Optional[str]

@@ -2,9 +2,10 @@ import React from 'react';
 import { Grid, GridColumn } from '@atlaskit/page';
 import { Checkbox } from '@atlaskit/checkbox';
 import Textfield from '@atlaskit/textfield';
+import { Slider } from 'antd';
 
 import { Tag, Tooltip } from 'antd';
-import { mkAttrQuery } from '../utils/utils';
+import { mkAttrQuerySet } from '../utils/utils';
 import { getAttributeValuesLimitOffset } from '../utils/api'
 import { List,AutoSizer } from 'react-virtualized'
 
@@ -23,6 +24,8 @@ export default class PhenotypeBuilder extends React.Component {
 		selectedRowKeys: [], // Check here to configure the default column
 		hpo_data: [],
 		filtered_data: [],
+		matchSliderValue: 1,
+		HPOSim:1,
 		// filter_str:'',
 	};
 
@@ -40,13 +43,13 @@ export default class PhenotypeBuilder extends React.Component {
 
 	loadProps(nextProps, force = false){
 		if((force && nextProps.attribute) || (nextProps.attribute && this.props.attribute !== nextProps.attribute)) {
-			getAttributeValuesLimitOffset(nextProps.attribute, 500, 0,
+			getAttributeValuesLimitOffset(this.props.settings_id, nextProps.attribute, 500, 0,
 		        (result) => {
 		          // console.log(result);
 		           if(result) {
 		           	const s = new Set();
 		           	this.setState({hpo_data: result, filtered_data: result, selectedRowKeys: s});
-		           	getAttributeValuesLimitOffset(nextProps.attribute, null, 50,
+		           	getAttributeValuesLimitOffset(this.props.settings_id, nextProps.attribute, null, 50,
 				        (result) => {
 				          // console.log(result);
 				           if(result) this.setState((oldState, _) => 
@@ -66,30 +69,51 @@ export default class PhenotypeBuilder extends React.Component {
 		        }
 		    )
 
-	        nextProps.setQuery(this.mkQuery(this.state));
+	        nextProps.setQuery(this.mkQuerySim(this.state));
 	    }
 	}
 
 
-	mkQuery = state => {
+	// mkQuery = state => {
+	// 	return {
+	//       operator:"and",
+	//       dontGroupExists: true,
+	//       children: [...state.selectedRowKeys].map((e) => mkAttrQuery(this.props.attribute, (v)=>v, 'is', e))
+	//     }
+	// }
+
+
+	mkQuerySim = state => {
+		const[f,p] = mkAttrQuerySet(this.props.attribute, (v)=>v)
 		return {
-	      operator:"and",
-	      dontGroupExists: true,
-	      children: [...state.selectedRowKeys].map((e) => mkAttrQuery(this.props.attribute, (v)=>v, 'is', e))
+	      operator:"similarity",
+	      from: { 
+	      	operator: "set",
+	      	from: f,
+	      	path: p
+	      },
+	      hpos: [...state.selectedRowKeys],
+	      match: state.matchSliderValue,
+	      similarity: state.HPOSim
 	    }
 	}
 
 
 	toggleTag = i => () => {
 		const newState = {...this.state};
+		const rs = newState.selectedRowKeys.size;
+
 		if(newState.selectedRowKeys.has(i)){
 			newState.selectedRowKeys.delete(i)
 		} else {
 			newState.selectedRowKeys.add(i)
 		}
+		if(newState.matchSliderValue === rs || rs === 0) {
+			newState.matchSliderValue = newState.selectedRowKeys.size
+		}
 		this.setState(newState);
 		this.list.forceUpdateGrid()
-	    this.props.setQuery(this.mkQuery(newState));
+	  this.props.setQuery(this.mkQuerySim(newState));
 	}
 
 	trimOrPad = e => {
@@ -125,10 +149,45 @@ export default class PhenotypeBuilder extends React.Component {
    		this.setState({filtered_data: data});
 	}
 
+	handleMatchSlider = e => {
+			const newState = {...this.state};
+			newState.matchSliderValue = e
+   		this.setState(newState);
+   		this.props.setQuery(this.mkQuerySim(newState));
+	}
+
+	handleHPOSimSlider = e => {
+   		const newState = {...this.state};
+			newState.HPOSim = e
+   		this.setState(newState);
+   		this.props.setQuery(this.mkQuerySim(newState));
+	}
+
+
+	sim_formatter = value => {
+		if(value === 0) {
+			return "not related"
+		}
+		if(value === 1) {
+			return "exact match"
+		}
+	  return `${value*100}% similar`;
+	}
+
+	match_formatter = selectedRowKeysLength => value => {
+		if(value === 1) {
+			return "any"
+		}
+		if(value === selectedRowKeysLength) {
+			return "all"
+		}
+	  return `${value} out of ${selectedRowKeysLength}`;
+	}
+
+
 	
 	render() {
-		const { selectedRowKeys, filtered_data } = this.state;
-		// console.log(filtered_data.length)
+		const { selectedRowKeys, filtered_data, matchSliderValue } = this.state;
 		return (
 		  <div style={{marginBottom: '0.5em'}}>
 		  <h3 style={{paddingBottom: '0.5em'}}>{this.props.label?this.props.label:'<Label>'}</h3>
@@ -167,7 +226,35 @@ export default class PhenotypeBuilder extends React.Component {
 	        	textOverflow:'ellipsis'}}>{i}</span></Tag></Tooltip>)})}
 	        </div>
 	      </div>
-		
+	      	<div style={{display:'flex', paddingTop: '0.6em'}}>
+          	<div>
+            	<h5>HPO Term Pairwise Similarity: </h5>
+          	</div>
+          	<div style={{flexGrow:1}}>
+						<Slider
+              min={0} 
+              max={1} 
+              step={0.1}
+              onChange={this.handleHPOSimSlider}
+              tipFormatter={this.sim_formatter}
+              defaultValue={1} 
+            />
+            </div>
+
+            <div>
+            	<h5>Minimum Matched Terms: </h5>
+          	</div>
+          	<div style={{flexGrow:1}}>
+						<Slider
+              min={1} 
+              max={selectedRowKeys.size ? selectedRowKeys.size : 1}
+              step={1}
+              onChange={this.handleMatchSlider}
+              tipFormatter={this.match_formatter(selectedRowKeys.size ? selectedRowKeys.size : 1)}
+              value={matchSliderValue} 
+            />
+            </div>
+          </div>
 		  </div>
 		);
 	}

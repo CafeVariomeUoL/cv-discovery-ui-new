@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import (Column,ForeignKey, DateTime, Integer, Text, MetaData, String, Boolean, JSON, Table,
+from sqlalchemy import (Column,ForeignKey, DateTime, Integer, Float, ext, MetaData, String, Boolean, JSON, Table,
                         create_engine)
 from sqlalchemy.sql import func
 
@@ -33,6 +33,17 @@ eavs = Table(
     Column("source_id", Integer, ForeignKey(sources.c.source_id), nullable=False),
     Column("subject_id", String(256), nullable=False),
     Column("data", JSONB, nullable=False)
+)
+
+
+
+hpo_sims = Table(
+    "hpo_sims",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("source", String(10), nullable=False),
+    Column("target", String(10), nullable=False),
+    Column("rel", Float, nullable=False)
 )
 
 

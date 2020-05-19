@@ -27,8 +27,8 @@ export const getAttributeValues = (id, attribute, callback, callback_err) => fet
 
 
 
-export const getAttributeValuesLimitOffset = (attribute, limit, offset, callback, callback_err) => fetch(
-  process.env.REACT_APP_API_URL+"/discover/getAttributeValues", {
+export const getAttributeValuesLimitOffset = (id, attribute, limit, offset, callback, callback_err) => fetch(
+  process.env.REACT_APP_API_URL+"/discover/getAttributeValuesLimit/"+id, {
     method:'POST',
     headers: {
       'Access-Control-Allow-Origin': '*',

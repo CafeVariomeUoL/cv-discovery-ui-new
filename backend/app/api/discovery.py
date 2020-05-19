@@ -57,6 +57,33 @@ async def get_attributes_vals(id: str, attribute: dict):
 
 
 
+
+@router.post("/discover/getAttributeValuesLimit/{id}")
+async def get_attributes_vals(id:str, payload: AttributeValues):
+    attr_id = json.dumps(payload.attribute)
+
+    string = '%' + payload.string + '%' if payload.string else ''
+
+    stm = """select array_agg(x.value) 
+              from (select value from eav_values where eav_id = :id"""
+    if payload.string:
+        stm = stm + ' and value like :str'
+    if payload.limit:
+        stm = stm + ' limit :limit'
+    if payload.offset:
+        stm = stm + ' offset :offset'
+    stm = stm + ') x'
+
+
+    rs = engine.execute(text(stm), id=attr_id, limit=payload.limit, offset=payload.offset, str=string)
+
+
+    
+    return list(rs)[0]['array_agg']
+    
+
+
+
 @router.get("/discover/loadSettings/{id}")
 async def save_discovery_settings(id: str):
     query = select([discovery_settings.c.data]).where(discovery_settings.c.id == id)
