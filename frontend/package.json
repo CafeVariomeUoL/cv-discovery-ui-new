@@ -52,6 +52,7 @@
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^1.0.12-4.3.0",
     "react-scripts": "^3.4.0",
+    "rewire": "^5.0.0",
     "surge": "^0.21.3"
   },
   "browserslist": {
